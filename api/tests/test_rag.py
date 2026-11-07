@@ -78,7 +78,7 @@ def good_answer(section: str = "1. Attendance") -> Answer:
                   answered_from_context=True, confidence="high")
 
 
-SETTINGS = Settings(top_k=5, relevance_floor=0.55)
+SETTINGS = Settings(top_k=5, relevance_floor=0.70)
 
 
 # --------------------------------------------------------------------- abstention / floor

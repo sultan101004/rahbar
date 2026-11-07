@@ -44,11 +44,11 @@ class Settings:
     max_output_tokens: int = 700
 
     # Grounding (3.4): a passage below this cosine similarity is not evidence.
-    relevance_floor: float = 0.55
+    relevance_floor: float = 0.70
 
     # Semantic cache (3.3). Empty REDIS_URL disables the cache (unit tests, local dev).
     redis_url: str = ""
-    cache_threshold: float = 0.95
+    cache_threshold: float = 0.93
     cache_ttl_s: int = 86400
     cache_max_entries: int = 500
 
@@ -71,9 +71,9 @@ def get_settings() -> Settings:
         llm_api_key=os.environ.get("LLM_API_KEY", ""),
         llm_timeout_s=_float("LLM_TIMEOUT_S", 90.0),
         max_output_tokens=_int("MAX_OUTPUT_TOKENS", 700),
-        relevance_floor=_float("RELEVANCE_FLOOR", 0.55),
+        relevance_floor=_float("RELEVANCE_FLOOR", 0.70),
         redis_url=os.environ.get("REDIS_URL", ""),
-        cache_threshold=_float("CACHE_THRESHOLD", 0.95),
+        cache_threshold=_float("CACHE_THRESHOLD", 0.93),
         cache_ttl_s=_int("CACHE_TTL_S", 86400),
         cache_max_entries=_int("CACHE_MAX_ENTRIES", 500),
         log_level=os.environ.get("LOG_LEVEL", "INFO"),

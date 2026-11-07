@@ -228,3 +228,12 @@ def test_full_pipeline_on_fixtures(monkeypatch: pytest.MonkeyPatch) -> None:
     rows = client.collections["rahbar"].rows.values()
     assert any(m["superseded"] for _d, _e, m in rows)
     assert any(not m["superseded"] for _d, _e, m in rows)
+
+
+def test_fixed_chunks_ignore_structure() -> None:
+    from pipeline.chunk import fixed_chunks
+
+    doc = _fixture_doc("academic-rules-2026.md")
+    chunks = fixed_chunks(doc, 100, 0)
+    assert all(len(c.text.split()) <= 100 for c in chunks)
+    assert all(c.section.startswith("words ") for c in chunks)

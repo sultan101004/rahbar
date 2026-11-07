@@ -192,5 +192,24 @@ def chunk(doc: Document, size: int, overlap: int) -> list[Chunk]:
     return chunks
 
 
+def fixed_chunks(doc: Document, size: int, overlap: int) -> list[Chunk]:
+    """The naive baseline, kept only for the Stage B failure demo (CHUNK_STRATEGY=fixed):
+    fixed windows of `size` words over the whole document, blind to headings. A definition
+    or a clause that straddles a window edge is cut in half."""
+    stem = re.sub(r"[^a-z0-9]+", "-", doc.source.lower().rsplit(".", 1)[0]).strip("-")
+    words: list[tuple[str, int]] = [(w, p.page) for p in doc.pages for w in p.text.split()]
+    step = max(1, size - overlap)
+    chunks = []
+    for n, start in enumerate(range(0, len(words), step)):
+        window = words[start:start + size]
+        if not window:
+            break
+        chunks.append(Chunk(id=f"{stem}-{n:04d}", text=" ".join(w for w, _ in window),
+                            source=doc.source, section=f"words {start}-{start + len(window)}",
+                            page=window[0][1], doc_version=doc.doc_version,
+                            superseded=doc.superseded))
+    return chunks
+
+
 def word_count(text: str) -> int:
     return len(text.split())

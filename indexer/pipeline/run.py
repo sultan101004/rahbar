@@ -64,7 +64,7 @@ def discover(corpus_dir: str) -> list[tuple[Path, str, bool]]:
 
 
 def run_pipeline(settings: IndexerSettings) -> int:
-    from .chunk import chunk
+    from .chunk import chunk, fixed_chunks
     from .clean import clean
     from .embed import embed
     from .extract import extract
@@ -78,12 +78,14 @@ def run_pipeline(settings: IndexerSettings) -> int:
     for path, doc_version, superseded in documents:
         doc = clean(extract(str(path), doc_version, superseded))
         original_words += sum(len(p.text.split()) for p in doc.pages)
-        pieces = chunk(doc, settings.chunk_size, settings.chunk_overlap)
+        splitter = fixed_chunks if settings.chunk_strategy == "fixed" else chunk
+        pieces = splitter(doc, settings.chunk_size, settings.chunk_overlap)
         log("chunked", source=path.name, chunks=len(pieces), doc_version=doc_version,
             superseded=superseded, ocr_pages=sum(1 for p in doc.pages if p.ocr))
         all_chunks.extend(pieces)
     stored_words = sum(len(c.text.split()) for c in all_chunks)
-    log("chunking summary", chunks=len(all_chunks), chunk_size=settings.chunk_size,
+    log("chunking summary", chunks=len(all_chunks), strategy=settings.chunk_strategy,
+        chunk_size=settings.chunk_size,
         chunk_overlap=settings.chunk_overlap, original_words=original_words,
         stored_words=stored_words,
         amplification=round(stored_words / max(1, original_words), 3))

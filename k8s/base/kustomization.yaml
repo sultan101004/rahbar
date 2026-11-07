@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: rahbar
+# Apply order matters only for the namespace; kustomize sorts Namespace first.
+# secret.placeholder.yaml is deliberately NOT listed (it would overwrite the real Secret).
+resources:
+  - namespace.yaml
+  - serviceaccounts.yaml
+  - configmap.yaml
+  - networkpolicy.yaml
+  - chroma.yaml
+  - redis.yaml
+  - indexer.yaml
+  - api.yaml
+  - ui.yaml
+  - ingress.yaml
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: rahbar

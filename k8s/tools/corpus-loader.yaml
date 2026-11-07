@@ -1,0 +1,36 @@
+# A short-lived pod that mounts the rahbar-corpus PVC so `make corpus-load` can copy
+# corpus/raw/ into it with kubectl cp. Not part of the kustomization: it is a tool.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: corpus-loader
+  namespace: rahbar
+  labels: {app: corpus-loader}
+spec:
+  automountServiceAccountToken: false
+  restartPolicy: Never
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 10001
+    runAsGroup: 10001
+    fsGroup: 10001
+    seccompProfile: {type: RuntimeDefault}
+  containers:
+    - name: loader
+      image: busybox:1.37.0
+      command: ["sh", "-c", "sleep 1800"]
+      resources:
+        requests: {cpu: 10m, memory: 16Mi}
+        limits: {cpu: 200m, memory: 64Mi}
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop:
+            - ALL
+      volumeMounts:
+        - {name: corpus, mountPath: /corpus}
+  volumes:
+    - name: corpus
+      persistentVolumeClaim:
+        claimName: rahbar-corpus

@@ -1,0 +1,46 @@
+# RAHBAR corpus: FAST-NUCES public documents, checked on 8 November 2026.
+# Fetch with:  python corpus/fetch.py      Verify with:  python corpus/fetch.py --verify
+# doc_version and superseded become chunk metadata (section 3.1).
+
+documents:
+
+  # Property 2 (two versions of one policy) + 3 (scanned, image-only: only the cover has text)
+  - name: Undergraduate Academic Rules (Aug 2023)
+    url: http://nu.edu.pk/public/downloads/Academic-Rules-Undergrad-Aug-2023.pdf
+    doc_version: "2023-08"
+    superseded: true
+
+  # Property 2 (the current version) + 7 (numbered clauses, CGPA thresholds)
+  - name: Academic Rules Handbook (Jun 2026)
+    url: https://nu.edu.pk/public/downloads/Academic_Rules_Handbook_2026.pdf
+    doc_version: "2026-06"
+    superseded: false
+
+  # Property 2/7: the same rules with different clause numbers
+  - name: Prospectus 2026 - Academic Rules and Regulations
+    url: https://nu.edu.pk/Admissions/ProspectusUpload/Academic Rules and Regulations.pdf
+    doc_version: "2026"
+    superseded: false
+
+  # Property 5: long definitions (Generative AI policy, numbered sub-sections)
+  - name: Student Handbook (Jun 2026)
+    url: https://nu.edu.pk/public/downloads/Student_Handbook_2026.pdf
+    doc_version: "2026-06"
+    superseded: false
+
+  # Property 4: tables (tuition per credit hour, misc fees, refunds) + 7 (fees)
+  - name: Fee Structure page
+    url: https://www.nu.edu.pk/Admissions/FeeStructure
+    doc_version: "2026-27"
+    superseded: false
+
+  # Property 4: tables (grade points)
+  - name: Grading page
+    url: https://www.nu.edu.pk/Student/Grading
+    doc_version: "2026"
+    superseded: false
+
+  # Property 6: deliberately ABSENT. Hostel and transport rules are left out on purpose;
+  # the Student Handbook only says hostels exist. Golden questions q14/q15 ask about them.
+  # - name: Prospectus - Transport and Hostel Facilities
+  #   url: https://nu.edu.pk/Admissions/ProspectusUpload/Transport and Hostel Facilities.pdf

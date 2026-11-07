@@ -25,7 +25,7 @@ def get_settings() -> IndexerSettings:
         chroma_port=int(os.environ.get("CHROMA_PORT", 8000)),
         collection=os.environ.get("CHROMA_COLLECTION", "rahbar"),
         corpus_dir=os.environ.get("CORPUS_DIR", "/corpus"),
-        chunk_size=int(os.environ.get("CHUNK_SIZE", 400)),
-        chunk_overlap=int(os.environ.get("CHUNK_OVERLAP", 50)),
+        chunk_size=int(os.environ.get("CHUNK_SIZE", 300)),
+        chunk_overlap=int(os.environ.get("CHUNK_OVERLAP", 40)),
         ollama_url=os.environ.get("OLLAMA_URL", "http://host.minikube.internal:11434"),
     )

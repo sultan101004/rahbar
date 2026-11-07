@@ -74,11 +74,19 @@ def run_pipeline(settings: IndexerSettings) -> int:
     if not documents:
         raise SystemExit(f"no documents found in {settings.corpus_dir}")
     all_chunks: list[Chunk] = []
+    original_words = 0
     for path, doc_version, superseded in documents:
         doc = clean(extract(str(path), doc_version, superseded))
+        original_words += sum(len(p.text.split()) for p in doc.pages)
         pieces = chunk(doc, settings.chunk_size, settings.chunk_overlap)
-        log("chunked", source=path.name, chunks=len(pieces))
+        log("chunked", source=path.name, chunks=len(pieces), doc_version=doc_version,
+            superseded=superseded, ocr_pages=sum(1 for p in doc.pages if p.ocr))
         all_chunks.extend(pieces)
+    stored_words = sum(len(c.text.split()) for c in all_chunks)
+    log("chunking summary", chunks=len(all_chunks), chunk_size=settings.chunk_size,
+        chunk_overlap=settings.chunk_overlap, original_words=original_words,
+        stored_words=stored_words,
+        amplification=round(stored_words / max(1, original_words), 3))
     vectors = embed([c.text for c in all_chunks], settings)
     return store(all_chunks, vectors, settings)
 

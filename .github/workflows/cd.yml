@@ -1,0 +1,84 @@
+# CD: every push to main (main is protected: it only moves by a reviewed, green PR).
+# test -> build-push (images tagged with the commit SHA) -> deploy (ephemeral cluster,
+# rollout status, smoke test through the Ingress). Never :latest.
+name: cd
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cd-main
+  cancel-in-progress: false
+
+env:
+  PYTHON_VERSION: "3.12"
+  REGISTRY_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - run: pip install -r api/requirements-dev.txt -r indexer/requirements-dev.txt pytest-cov==6.1.1
+      - run: ruff check api indexer eval corpus tests
+      - run: |
+          (cd api && pytest -q --cov=app --cov-fail-under=60)
+          (cd indexer && pytest -q)
+          pytest -q tests
+
+  build-push:
+    runs-on: ubuntu-24.04
+    needs: test
+    strategy:
+      matrix:
+        component: [api, ui, indexer]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}     # an access token, never the password
+      - uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.component }}
+          push: true
+          tags: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/rahbar-${{ matrix.component }}:${{ github.sha }}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+
+  deploy:
+    runs-on: ubuntu-24.04
+    needs: build-push
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: helm/kind-action@v1.12.0
+        with:
+          install_only: true
+      - name: ephemeral cluster
+        run: scripts/ci/kind-up.sh
+      - name: deploy the images built from ${{ github.sha }}
+        run: |
+          U="docker.io/${REGISTRY_USER}"
+          scripts/ci/deploy-fixtures.sh \
+            "$U/rahbar-api:${GITHUB_SHA}" "$U/rahbar-ui:${GITHUB_SHA}" "$U/rahbar-indexer:${GITHUB_SHA}"
+      - name: rollout status
+        run: |
+          kubectl rollout status deployment/api -n rahbar --timeout=300s
+          kubectl rollout status deployment/ui -n rahbar --timeout=300s
+          kubectl get deploy -n rahbar -o wide
+      - name: smoke test through the Ingress
+        run: scripts/ci/smoke.sh
+      - name: what is running?
+        run: |
+          kubectl get pods -n rahbar -o jsonpath='{range .items[*]}{.metadata.name}{"  "}{.spec.containers[0].image}{"\n"}{end}'

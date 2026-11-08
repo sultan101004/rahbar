@@ -1,0 +1,11 @@
+# trivy 0.63.0: image --severity HIGH,CRITICAL --ignore-unfixed rahbar-api:dev
+# (base python:3.12.10-slim-bookworm, fastapi 0.115.12), 7-8 Nov 2026. Excerpt:
+Debian: perl  CVE-2023-31484 HIGH  fixed in 5.36.0-7+deb12u3  (CPAN.pm TLS verification)
+Debian: perl  CVE-2026-42497 HIGH  fixed in 5.36.0-7+deb12u4  (Archive-Tar hardlinks)
+Debian: perl  CVE-2026-48962 HIGH  fixed in 5.36.0-7+deb12u4  (IO-Compress code execution)
+Debian: perl  CVE-2026-57432 HIGH  fixed in 5.36.0-7+deb12u4
+Debian: perl  CVE-2026-57433 HIGH  fixed in 5.36.0-7+deb12u4
+Python: starlette 0.46.2  CVE-2025-62727 HIGH  fixed 0.49.1  (DoS via Range header merging)
+Python: starlette 0.46.2  CVE-2026-48818 HIGH  fixed 1.1.0   (SSRF via UNC paths in StaticFiles)
+Python: starlette 0.46.2  CVE-2026-54283 HIGH  fixed 1.3.1   (form limits ignored, DoS)
+# Fix: python:3.12.15-slim-trixie + apt-get upgrade; fastapi==0.160.0 with starlette==1.8.0.

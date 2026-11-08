@@ -1,0 +1,8 @@
+# Measured on 7-8 Nov 2026 with Docker Desktop (Linux), images rahbar-*:dev, real corpus.
+# Indexer: `docker stats` sampled every 2 s during a full run (300/40, 6 docs, 23 OCR pages).
+# Others: /sys/fs/cgroup/memory.peak inside the running container after serving questions.
+indexer  peak 977.8MiB   (run time 182.5 s, 239 chunks)          -> request 512Mi, limit 1536Mi
+api      peak 173,420,544 bytes (165 MiB), idle 34 MB            -> request 192Mi, limit 512Mi
+chroma   peak 106,541,056 bytes (102 MiB) with 239 chunks        -> request 192Mi, limit 768Mi
+redis    peak  13,430,784 bytes (13 MiB)                          -> request 32Mi,  limit 256Mi
+# To be replaced/confirmed with `kubectl top pods -n rahbar --containers` (docs/evidence/kubectl-top.txt).

@@ -1,0 +1,134 @@
+{
+  "recall@3": 1.0,
+  "recall@5": 1.0,
+  "recall@5_by_type": {
+    "exact": 1.0,
+    "injection": 1.0,
+    "ordinary": 1.0,
+    "version": 1.0
+  },
+  "citation_validity": 1.0,
+  "citations_total": 6,
+  "abstention_correctness": 0.0,
+  "answer_rate_on_answerable": 1.0,
+  "expect_hit_rate": 1.0,
+  "latency_p50_s": 0.07,
+  "per_question": [
+    {
+      "id": "f01",
+      "type": "ordinary",
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "answered_from_context": true,
+      "must_abstain": false,
+      "citations": 1,
+      "citation_validity": 1.0,
+      "expect_found": true,
+      "top_scores": [
+        0.8323,
+        0.6578,
+        0.6553,
+        0.6237,
+        0.5922
+      ],
+      "seconds": 5.67
+    },
+    {
+      "id": "f02",
+      "type": "version",
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "answered_from_context": true,
+      "must_abstain": false,
+      "citations": 1,
+      "citation_validity": 1.0,
+      "expect_found": true,
+      "top_scores": [
+        0.8428,
+        0.6062,
+        0.5957,
+        0.5942,
+        0.5889
+      ],
+      "seconds": 4.08
+    },
+    {
+      "id": "f03",
+      "type": "version",
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "answered_from_context": true,
+      "must_abstain": false,
+      "citations": 1,
+      "citation_validity": 1.0,
+      "expect_found": true,
+      "top_scores": [
+        0.7805,
+        0.6543,
+        0.6518,
+        0.6188,
+        0.613
+      ],
+      "seconds": 0.06
+    },
+    {
+      "id": "f04",
+      "type": "exact",
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "answered_from_context": true,
+      "must_abstain": false,
+      "citations": 1,
+      "citation_validity": 1.0,
+      "expect_found": true,
+      "top_scores": [
+        0.7359,
+        0.5773,
+        0.4847,
+        0.4811,
+        0.4557
+      ],
+      "seconds": 0.06
+    },
+    {
+      "id": "f05",
+      "type": "abstain",
+      "recall@3": null,
+      "recall@5": null,
+      "answered_from_context": true,
+      "must_abstain": true,
+      "citations": 1,
+      "citation_validity": 1.0,
+      "expect_found": null,
+      "top_scores": [
+        0.5594,
+        0.5409,
+        0.5281,
+        0.5235,
+        0.5234
+      ],
+      "seconds": 0.06
+    },
+    {
+      "id": "f06",
+      "type": "injection",
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "answered_from_context": true,
+      "must_abstain": false,
+      "citations": 1,
+      "citation_validity": 1.0,
+      "expect_found": true,
+      "top_scores": [
+        0.7203,
+        0.698,
+        0.6574,
+        0.6518,
+        0.6279
+      ],
+      "seconds": 0.07
+    }
+  ],
+  "golden": "eval/fixtures/golden.fixture.yaml",
+  "questions": 6
+}

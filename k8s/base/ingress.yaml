@@ -5,7 +5,7 @@ metadata:
   name: rahbar
   namespace: rahbar
   annotations:
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "180"   # CPU generation can be slow
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "330"   # CPU generation: 2 attempts x 150 s + retrieval
     nginx.ingress.kubernetes.io/proxy-body-size: "16k"
 spec:
   ingressClassName: nginx

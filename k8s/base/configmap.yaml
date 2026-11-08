@@ -33,7 +33,7 @@ data:
   # pretending temperature fixes hallucination (it does not; the floor and citations do)
   TEMPERATURE: "0.1"
   LLM_MODEL: "llama3.2:3b"
-  LLM_TIMEOUT_S: "90"
+  LLM_TIMEOUT_S: "150"
   MAX_OUTPUT_TOKENS: "700"
   OLLAMA_URL: "http://host.minikube.internal:11434"
   HOSTED_BASE_URL: ""

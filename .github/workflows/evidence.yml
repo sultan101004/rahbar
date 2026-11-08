@@ -1,0 +1,60 @@
+# Cluster evidence (section 4): runs on a push to the `evidence` branch, or by hand.
+# A kind cluster WITH Calico (NetworkPolicy enforced) and metrics-server, the full stack on
+# the fixture corpus, then scripts/evidence/capture.sh records kubectl top, the HPA,
+# scaling + endpoints, rollout + undo, a pod deletion under traffic, the embedding pin and
+# the NetworkPolicy. The transcripts are uploaded as the `cluster-evidence` artifact.
+name: evidence
+
+on:
+  push:
+    branches: [evidence]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: build images (plus a second api tag to roll out and undo)
+        run: |
+          docker build -t rahbar-api:ci api
+          docker tag rahbar-api:ci rahbar-api:ci-v2
+          docker build -t rahbar-ui:ci ui
+          docker build -t rahbar-indexer:ci indexer
+      - uses: helm/kind-action@v1.12.0
+        with:
+          install_only: true
+      - name: kind + Calico + ingress-nginx + Ollama
+        env:
+          KIND_CONFIG: k8s/kind/kind-calico.yaml
+          KIND_WAIT: 0s
+          CNI_MANIFEST: https://raw.githubusercontent.com/projectcalico/calico/v3.29.3/manifests/calico.yaml
+        run: scripts/ci/kind-up.sh
+      - name: metrics-server (kubectl top, HPA)
+        run: |
+          kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.7.2/components.yaml
+          kubectl patch deployment metrics-server -n kube-system --type json \
+            -p '[{"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--kubelet-insecure-tls"}]'
+      - name: load images
+        run: for i in rahbar-api:ci rahbar-api:ci-v2 rahbar-ui:ci rahbar-indexer:ci; do kind load docker-image "$i" --name rahbar; done
+      - name: deploy and index the fixture corpus
+        run: scripts/ci/deploy-fixtures.sh rahbar-api:ci rahbar-ui:ci rahbar-indexer:ci
+      - name: apply the real NetworkPolicies (Ollama at its kind-network IP)
+        run: |
+          sed "s#192.168.49.1/32#${OLLAMA_IP}/32#g" k8s/base/networkpolicy.yaml | kubectl apply -f -
+          kubectl wait --for=condition=Ready pod -l app=api -n rahbar --timeout=120s
+      - name: smoke test through the Ingress, with policies enforced
+        run: scripts/ci/smoke.sh
+      - name: capture evidence
+        env:
+          OUT: evidence-out
+        run: scripts/evidence/capture.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cluster-evidence
+          path: evidence-out

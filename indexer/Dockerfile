@@ -1,12 +1,12 @@
 # RAHBAR indexer: the Job's image and the ONLY writer to Chroma. Runs once and exits.
 # Build context: indexer/. OCR needs system packages, not only pip packages.
-FROM python:3.12.10-slim-bookworm AS build
+FROM python:3.12.15-slim-trixie AS build
 ENV PIP_NO_CACHE_DIR=1 PIP_DISABLE_PIP_VERSION_CHECK=1
 WORKDIR /build
 COPY requirements.txt .
 RUN python -m venv /opt/venv && /opt/venv/bin/pip install -r requirements.txt
 
-FROM python:3.12.10-slim-bookworm
+FROM python:3.12.15-slim-trixie
 LABEL org.opencontainers.image.title="rahbar-indexer" \
       org.opencontainers.image.description="RAHBAR indexing Job: extract, clean, chunk, embed, store"
 # tesseract-ocr: OCR for image-only pages; poppler-utils: pdf2image renders pages

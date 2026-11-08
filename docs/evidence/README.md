@@ -23,4 +23,6 @@ so this stands in for the minikube runs; every file is a transcript of real comm
 | `trivy-before-fix.txt` | HIGH CVEs that made us move to FastAPI 0.160/Starlette 1.8 and a trixie base |
 | `fixture-gate-fail-floor-0.55.json` | the eval gate failing (abstention 0%) when the floor was 0.55 |
 | `ui-screenshot.jpg` | the chat UI answering with a citation |
-| `blocked-merge.png`, `green-merge.png` | **TODO**: screenshots of a gate-failing PR with merge blocked, then a green one |
+| `blocked-merge-gate-log.txt` | demo PR #7 (floor 0.55): the hostel question is answered from a fees table and the e2e-eval check fails, blocking the merge |
+| `green-merge.png` | PR #6 merged with all 12 checks passed |
+| `blocked-merge.png` | **TODO**: screenshot of PR #7 merge box with the failing check |

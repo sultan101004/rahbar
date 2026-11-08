@@ -1,0 +1,1 @@
+{"checks":["lint","test","manifests","build","scan","e2e-eval"],"force_push":false,"reviews":1}

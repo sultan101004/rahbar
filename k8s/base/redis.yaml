@@ -47,6 +47,29 @@ spec:
         runAsGroup: 1000
         fsGroup: 1000
         seccompProfile: {type: RuntimeDefault}
+      initContainers:
+        # local-path / hostPath provisioners (kind, minikube) ignore fsGroup, so the volume
+        # is root-owned and the non-root server cannot write it. This init container is the
+        # one exception to runAsNonRoot: it only chowns the data directory, with every
+        # capability dropped except CHOWN, then exits.
+        - name: fix-permissions
+          image: busybox:1.37.0
+          command: ["sh", "-c", "chown -R 999:1000 /data"]
+          resources:
+            requests: {cpu: 5m, memory: 8Mi}
+            limits: {cpu: 50m, memory: 16Mi}
+          securityContext:
+            runAsUser: 0
+            runAsNonRoot: false
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+              add:
+                - CHOWN
+          volumeMounts:
+            - {name: cache-data, mountPath: /data}
       containers:
         - name: redis
           image: redis:7.4.2-alpine

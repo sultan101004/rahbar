@@ -48,6 +48,6 @@ a PVC is enough.
 | --- | --- |
 | Secrets in Git | `*secret*.yaml` gitignored. Only `k8s/base/secret.placeholder.yaml` (REPLACE_ME, not in kustomization) is committed; the Secret is created with `kubectl create secret`. |
 | Everything is admin | One ServiceAccount per workload, `automountServiceAccountToken: false` on all of them; none calls the API server. |
-| Containers as root | `runAsNonRoot: true`, `readOnlyRootFilesystem: true`, `capabilities: drop: [ALL]`, `allowPrivilegeEscalation: false`, seccomp RuntimeDefault on every container, init containers included. |
+| Containers as root | `runAsNonRoot: true`, `readOnlyRootFilesystem: true`, `capabilities: drop: [ALL]`, `allowPrivilegeEscalation: false`, seccomp RuntimeDefault on every container. One documented exception: the `fix-permissions` init containers of chroma and redis run as root with only `CAP_CHOWN` to chown their PVC, because the kind/minikube provisioners ignore `fsGroup` (found when CI crashed chroma with `unable to open database file`). |
 | Flat network | `default-deny-all`, then ui from ingress-nginx; api from ingress-nginx and ui; chroma from api and indexer; redis from api; DNS for all. The ui pod cannot reach chroma. Needs `--cni=calico`. |
 | Unsafe model output | Schema-constrained, Pydantic-validated, citations checked against retrieved chunks; never passed to `eval`, never used to build SQL. |

@@ -17,9 +17,13 @@ echo "GET / -> $code"; head -c 300 /tmp/ui.html; echo
 ask() {
   local out code
   out=$(mktemp)
-  code=$(curl -s -o "$out" -w '%{http_code}' -m 120 -H "Host: $HOST" -H 'Content-Type: application/json' \
-    -X POST "$BASE/api/ask" -d "{\"question\": \"$1\"}")
-  echo "POST /api/ask ($1) -> $code" >&2
+  for _ in $(seq 1 30); do   # 503 = no Ready api endpoint yet: wait, do not fail at once
+    code=$(curl -s -o "$out" -w '%{http_code}' -m 120 -H "Host: $HOST" -H 'Content-Type: application/json' \
+      -X POST "$BASE/api/ask" -d "{\"question\": \"$1\"}")
+    echo "POST /api/ask ($1) -> $code" >&2
+    [ "$code" = 503 ] || break
+    sleep 2
+  done
   cat "$out"
   [ "$code" = 200 ]
 }

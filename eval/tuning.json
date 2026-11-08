@@ -1,0 +1,732 @@
+{
+  "configs": [
+    {
+      "collection": "rahbar",
+      "chunks": 240,
+      "by_k": {
+        "1": {
+          "recall@3": 0.7647,
+          "recall@5": 0.7647,
+          "recall@5_by_type": {
+            "exact": 1.0,
+            "injection": 1.0,
+            "ordinary": 0.8,
+            "version": 0.3333
+          },
+          "misses@5": [
+            "q04",
+            "q09",
+            "q12",
+            "q13"
+          ]
+        },
+        "3": {
+          "recall@3": 0.9412,
+          "recall@5": 0.9412,
+          "recall@5_by_type": {
+            "exact": 1.0,
+            "injection": 1.0,
+            "ordinary": 0.9,
+            "version": 1.0
+          },
+          "misses@5": [
+            "q09"
+          ]
+        },
+        "5": {
+          "recall@3": 0.9412,
+          "recall@5": 1.0,
+          "recall@5_by_type": {
+            "exact": 1.0,
+            "injection": 1.0,
+            "ordinary": 1.0,
+            "version": 1.0
+          },
+          "misses@5": []
+        },
+        "8": {
+          "recall@3": 0.9412,
+          "recall@5": 1.0,
+          "recall@5_by_type": {
+            "exact": 1.0,
+            "injection": 1.0,
+            "ordinary": 1.0,
+            "version": 1.0
+          },
+          "misses@5": []
+        }
+      },
+      "top1_similarity": {
+        "answerable": [
+          [
+            0.0,
+            "q08+lexical"
+          ],
+          [
+            0.591,
+            "q15+lexical"
+          ],
+          [
+            0.685,
+            "q14+lexical"
+          ],
+          [
+            0.72,
+            "q09"
+          ],
+          [
+            0.757,
+            "q03"
+          ],
+          [
+            0.771,
+            "q05"
+          ],
+          [
+            0.784,
+            "q10"
+          ],
+          [
+            0.795,
+            "q13"
+          ],
+          [
+            0.812,
+            "q16"
+          ],
+          [
+            0.818,
+            "q20"
+          ],
+          [
+            0.845,
+            "q12"
+          ],
+          [
+            0.853,
+            "q11"
+          ],
+          [
+            0.855,
+            "q02"
+          ],
+          [
+            0.87,
+            "q06"
+          ],
+          [
+            0.875,
+            "q07"
+          ],
+          [
+            0.882,
+            "q04"
+          ],
+          [
+            0.894,
+            "q01"
+          ]
+        ],
+        "abstain": [
+          [
+            0.646,
+            "q17"
+          ],
+          [
+            0.648,
+            "q21"
+          ],
+          [
+            0.656,
+            "q19"
+          ],
+          [
+            0.69,
+            "q18"
+          ]
+        ]
+      }
+    },
+    {
+      "collection": "rahbar-c150",
+      "chunks": 338,
+      "by_k": {
+        "1": {
+          "recall@3": 0.7647,
+          "recall@5": 0.7647,
+          "recall@5_by_type": {
+            "exact": 1.0,
+            "injection": 1.0,
+            "ordinary": 0.8,
+            "version": 0.3333
+          },
+          "misses@5": [
+            "q04",
+            "q09",
+            "q12",
+            "q13"
+          ]
+        },
+        "3": {
+          "recall@3": 0.9412,
+          "recall@5": 0.9412,
+          "recall@5_by_type": {
+            "exact": 1.0,
+            "injection": 1.0,
+            "ordinary": 0.9,
+            "version": 1.0
+          },
+          "misses@5": [
+            "q09"
+          ]
+        },
+        "5": {
+          "recall@3": 0.9412,
+          "recall@5": 1.0,
+          "recall@5_by_type": {
+            "exact": 1.0,
+            "injection": 1.0,
+            "ordinary": 1.0,
+            "version": 1.0
+          },
+          "misses@5": []
+        },
+        "8": {
+          "recall@3": 0.9412,
+          "recall@5": 1.0,
+          "recall@5_by_type": {
+            "exact": 1.0,
+            "injection": 1.0,
+            "ordinary": 1.0,
+            "version": 1.0
+          },
+          "misses@5": []
+        }
+      },
+      "top1_similarity": {
+        "answerable": [
+          [
+            0.0,
+            "q08+lexical"
+          ],
+          [
+            0.607,
+            "q15+lexical"
+          ],
+          [
+            0.685,
+            "q14+lexical"
+          ],
+          [
+            0.72,
+            "q09"
+          ],
+          [
+            0.772,
+            "q03"
+          ],
+          [
+            0.787,
+            "q05"
+          ],
+          [
+            0.795,
+            "q13"
+          ],
+          [
+            0.805,
+            "q10"
+          ],
+          [
+            0.812,
+            "q16"
+          ],
+          [
+            0.818,
+            "q20"
+          ],
+          [
+            0.853,
+            "q11"
+          ],
+          [
+            0.855,
+            "q02"
+          ],
+          [
+            0.857,
+            "q12"
+          ],
+          [
+            0.873,
+            "q06"
+          ],
+          [
+            0.875,
+            "q07"
+          ],
+          [
+            0.882,
+            "q04"
+          ],
+          [
+            0.894,
+            "q01"
+          ]
+        ],
+        "abstain": [
+          [
+            0.646,
+            "q17"
+          ],
+          [
+            0.657,
+            "q19"
+          ],
+          [
+            0.659,
+            "q21"
+          ],
+          [
+            0.69,
+            "q18"
+          ]
+        ]
+      }
+    },
+    {
+      "collection": "rahbar-c500",
+      "chunks": 213,
+      "by_k": {
+        "1": {
+          "recall@3": 0.7647,
+          "recall@5": 0.7647,
+          "recall@5_by_type": {
+            "exact": 1.0,
+            "injection": 1.0,
+            "ordinary": 0.7,
+            "version": 0.6667
+          },
+          "misses@5": [
+            "q04",
+            "q05",
+            "q09",
+            "q13"
+          ]
+        },
+        "3": {
+          "recall@3": 0.9412,
+          "recall@5": 0.9412,
+          "recall@5_by_type": {
+            "exact": 1.0,
+            "injection": 1.0,
+            "ordinary": 0.9,
+            "version": 1.0
+          },
+          "misses@5": [
+            "q09"
+          ]
+        },
+        "5": {
+          "recall@3": 0.9412,
+          "recall@5": 1.0,
+          "recall@5_by_type": {
+            "exact": 1.0,
+            "injection": 1.0,
+            "ordinary": 1.0,
+            "version": 1.0
+          },
+          "misses@5": []
+        },
+        "8": {
+          "recall@3": 0.9412,
+          "recall@5": 1.0,
+          "recall@5_by_type": {
+            "exact": 1.0,
+            "injection": 1.0,
+            "ordinary": 1.0,
+            "version": 1.0
+          },
+          "misses@5": []
+        }
+      },
+      "top1_similarity": {
+        "answerable": [
+          [
+            0.0,
+            "q08+lexical"
+          ],
+          [
+            0.591,
+            "q15+lexical"
+          ],
+          [
+            0.685,
+            "q14+lexical"
+          ],
+          [
+            0.72,
+            "q09"
+          ],
+          [
+            0.757,
+            "q03"
+          ],
+          [
+            0.757,
+            "q05"
+          ],
+          [
+            0.766,
+            "q10"
+          ],
+          [
+            0.795,
+            "q13"
+          ],
+          [
+            0.812,
+            "q16"
+          ],
+          [
+            0.818,
+            "q20"
+          ],
+          [
+            0.836,
+            "q12"
+          ],
+          [
+            0.853,
+            "q11"
+          ],
+          [
+            0.855,
+            "q02"
+          ],
+          [
+            0.87,
+            "q06"
+          ],
+          [
+            0.875,
+            "q07"
+          ],
+          [
+            0.882,
+            "q04"
+          ],
+          [
+            0.894,
+            "q01"
+          ]
+        ],
+        "abstain": [
+          [
+            0.646,
+            "q17"
+          ],
+          [
+            0.648,
+            "q21"
+          ],
+          [
+            0.656,
+            "q19"
+          ],
+          [
+            0.69,
+            "q18"
+          ]
+        ]
+      }
+    },
+    {
+      "collection": "rahbar-fixed100",
+      "chunks": 300,
+      "by_k": {
+        "1": {
+          "recall@3": 0.0,
+          "recall@5": 0.0,
+          "recall@5_by_type": {
+            "exact": 0.0,
+            "injection": 0.0,
+            "ordinary": 0.0,
+            "version": 0.0
+          },
+          "misses@5": [
+            "q01",
+            "q02",
+            "q03",
+            "q04",
+            "q05",
+            "q06",
+            "q07",
+            "q08",
+            "q09",
+            "q10",
+            "q11",
+            "q12",
+            "q13",
+            "q14",
+            "q15",
+            "q16",
+            "q20"
+          ]
+        },
+        "3": {
+          "recall@3": 0.0,
+          "recall@5": 0.0,
+          "recall@5_by_type": {
+            "exact": 0.0,
+            "injection": 0.0,
+            "ordinary": 0.0,
+            "version": 0.0
+          },
+          "misses@5": [
+            "q01",
+            "q02",
+            "q03",
+            "q04",
+            "q05",
+            "q06",
+            "q07",
+            "q08",
+            "q09",
+            "q10",
+            "q11",
+            "q12",
+            "q13",
+            "q14",
+            "q15",
+            "q16",
+            "q20"
+          ]
+        },
+        "5": {
+          "recall@3": 0.0,
+          "recall@5": 0.0,
+          "recall@5_by_type": {
+            "exact": 0.0,
+            "injection": 0.0,
+            "ordinary": 0.0,
+            "version": 0.0
+          },
+          "misses@5": [
+            "q01",
+            "q02",
+            "q03",
+            "q04",
+            "q05",
+            "q06",
+            "q07",
+            "q08",
+            "q09",
+            "q10",
+            "q11",
+            "q12",
+            "q13",
+            "q14",
+            "q15",
+            "q16",
+            "q20"
+          ]
+        },
+        "8": {
+          "recall@3": 0.0,
+          "recall@5": 0.0,
+          "recall@5_by_type": {
+            "exact": 0.0,
+            "injection": 0.0,
+            "ordinary": 0.0,
+            "version": 0.0
+          },
+          "misses@5": [
+            "q01",
+            "q02",
+            "q03",
+            "q04",
+            "q05",
+            "q06",
+            "q07",
+            "q08",
+            "q09",
+            "q10",
+            "q11",
+            "q12",
+            "q13",
+            "q14",
+            "q15",
+            "q16",
+            "q20"
+          ]
+        }
+      },
+      "top1_similarity": {
+        "answerable": [
+          [
+            0.0,
+            "q08+lexical"
+          ],
+          [
+            0.62,
+            "q15+lexical"
+          ],
+          [
+            0.683,
+            "q14+lexical"
+          ],
+          [
+            0.694,
+            "q09"
+          ],
+          [
+            0.763,
+            "q10"
+          ],
+          [
+            0.766,
+            "q16"
+          ],
+          [
+            0.773,
+            "q13"
+          ],
+          [
+            0.776,
+            "q03"
+          ],
+          [
+            0.779,
+            "q05"
+          ],
+          [
+            0.791,
+            "q12"
+          ],
+          [
+            0.807,
+            "q20"
+          ],
+          [
+            0.811,
+            "q02"
+          ],
+          [
+            0.829,
+            "q11"
+          ],
+          [
+            0.85,
+            "q06"
+          ],
+          [
+            0.873,
+            "q04"
+          ],
+          [
+            0.881,
+            "q07"
+          ],
+          [
+            0.891,
+            "q01"
+          ]
+        ],
+        "abstain": [
+          [
+            0.646,
+            "q19"
+          ],
+          [
+            0.65,
+            "q21"
+          ],
+          [
+            0.664,
+            "q17"
+          ],
+          [
+            0.703,
+            "q18"
+          ]
+        ]
+      }
+    }
+  ],
+  "cache": {
+    "paraphrase": [
+      0.9976,
+      0.9319,
+      0.9705,
+      0.9526
+    ],
+    "near_miss": [
+      0.8951,
+      0.7366,
+      0.6597,
+      0.9093,
+      0.8842
+    ],
+    "thresholds": {
+      "0.9": {
+        "true_hits": 4,
+        "false_hits": 1
+      },
+      "0.93": {
+        "true_hits": 4,
+        "false_hits": 0
+      },
+      "0.95": {
+        "true_hits": 3,
+        "false_hits": 0
+      },
+      "0.97": {
+        "true_hits": 2,
+        "false_hits": 0
+      }
+    },
+    "pairs": {
+      "paraphrase": [
+        [
+          "What is the attendance requirement?",
+          "What's the attendance requirement?"
+        ],
+        [
+          "How many semesters can I freeze?",
+          "For how many semesters can a student freeze admission?"
+        ],
+        [
+          "What is the BS tuition fee per credit hour?",
+          "How much is BS tuition per credit hour?"
+        ],
+        [
+          "What CGPA avoids academic warning?",
+          "What CGPA do I need to avoid academic warning?"
+        ]
+      ],
+      "near_miss": [
+        [
+          "What is the deadline to withdraw from a course?",
+          "What is the deadline to drop a course?"
+        ],
+        [
+          "What CGPA avoids academic warning?",
+          "What CGPA is required for graduation?"
+        ],
+        [
+          "What is the campus transfer fee?",
+          "What is the degree correction fee?"
+        ],
+        [
+          "What is the minimum attendance for undergraduates?",
+          "What is the minimum attendance for graduate students?"
+        ],
+        [
+          "What SGPA puts me on the Dean's List?",
+          "What SGPA puts me on the Rector's List?"
+        ]
+      ]
+    }
+  }
+}

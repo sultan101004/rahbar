@@ -126,8 +126,14 @@ below 95%. In CI it runs against a kind cluster with the fixture corpus.
 **Secrets:** none in Git. `*secret*.yaml` is gitignored, `k8s/base/secret.placeholder.yaml` holds
 `REPLACE_ME` and is not in the kustomization, and the real Secret is created with
 `kubectl create secret generic rahbar-secret -n rahbar --from-literal=LLM_API_KEY="$LLM_API_KEY"`.
-Base64 is encoding, not encryption. CD uses `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` (an access
-token) from GitHub Secrets.
+Base64 is encoding, not encryption.
+
+**Images:** CD publishes to the GitHub Container Registry, tagged by commit SHA
+(`ghcr.io/sultan101004/rahbar-{api,ui,indexer}:<sha>`). It authenticates with the run's
+short-lived `GITHUB_TOKEN`, so no registry password is stored anywhere. The handout asks for
+Docker Hub; we could not use a Docker Hub account in time. Switching is one variable
+(`REGISTRY: docker.io`) plus a `DOCKERHUB_USERNAME`/`DOCKERHUB_TOKEN` secret pair (an access
+token, never the password) in `.github/workflows/cd.yml`.
 
 **Corpus:** we commit `corpus/MANIFEST.md` with each URL and SHA-256 plus `corpus/fetch.py`, not
 the documents. See [docs/CORPUS.md](docs/CORPUS.md).

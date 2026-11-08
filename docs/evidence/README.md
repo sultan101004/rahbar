@@ -25,4 +25,4 @@ so this stands in for the minikube runs; every file is a transcript of real comm
 | `ui-screenshot.jpg` | the chat UI answering with a citation |
 | `blocked-merge-gate-log.txt` | demo PR #7 (floor 0.55): the hostel question is answered from a fees table and the e2e-eval check fails, blocking the merge |
 | `green-merge.png` | PR #6 merged with all 12 checks passed |
-| `blocked-merge.png` | **TODO**: screenshot of PR #7 merge box with the failing check |
+| `blocked-merge.png` | PR #7: `ci / e2e-eval` failing (required), "Merging is blocked", merge button greyed out |

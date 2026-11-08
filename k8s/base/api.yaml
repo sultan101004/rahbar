@@ -34,6 +34,8 @@ spec:
     spec:
       serviceAccountName: api
       automountServiceAccountToken: false
+      # no CHROMA_PORT=tcp://... service-link env: Chroma reads CHROMA_* as its config
+      enableServiceLinks: false
       terminationGracePeriodSeconds: 40
       securityContext:
         runAsNonRoot: true

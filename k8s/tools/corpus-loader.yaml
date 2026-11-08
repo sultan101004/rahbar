@@ -8,6 +8,8 @@ metadata:
   labels: {app: corpus-loader}
 spec:
   automountServiceAccountToken: false
+  # no CHROMA_PORT=tcp://... service-link env: Chroma reads CHROMA_* as its config
+  enableServiceLinks: false
   restartPolicy: Never
   securityContext:
     runAsNonRoot: true

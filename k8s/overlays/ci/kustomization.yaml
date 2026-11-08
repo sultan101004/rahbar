@@ -22,11 +22,14 @@ patches:
         value: {name: corpus, configMap: {name: rahbar-corpus-fixtures}}
   - target: {kind: CronJob, name: reindex}
     patch: |-
-      - op: replace
+      - op: add
         path: /spec/suspend
         value: true
-  # kind's CNI does not enforce NetworkPolicy, and the runner's Ollama is not at the
-  # minikube host IP: drop the policies here; they are exercised on minikube with Calico.
+      - op: replace
+        path: /spec/jobTemplate/spec/template/spec/volumes/0
+        value: {name: corpus, configMap: {name: rahbar-corpus-fixtures}}
+  # The runner's Ollama is not at the minikube host IP: drop the policies here. The evidence
+  # workflow re-applies them on a Calico cluster with the right IP (evidence.yml).
   - target: {kind: NetworkPolicy}
     patch: |-
       $patch: delete

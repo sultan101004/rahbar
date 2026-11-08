@@ -1,0 +1,9 @@
+# EMBED_MODEL changed to mxbai-embed-large on the api only; index built with nomic-embed-text (8 Nov 2026, Docker, real index)
+$ curl -i localhost:8030/readyz
+HTTP/1.1 503 Service Unavailable
+{"status":"not ready","checks":{"chroma":"ok (240 chunks, index 20261108T173835Z)","embed_model":"embedding model mismatch: index built with 'nomic-embed-text', API pinned to EMBED_MODEL='mxbai-embed-large'. Vectors from different models are not comparable; refusing to serve. Re-index or restore the ConfigMap.","redis":"skipped (no REDIS_URL)"}}
+$ curl -s localhost:8030/healthz   # liveness unaffected
+{"status":"alive"}
+
+# api log at startup:
+{"ts": "2026-11-08T18:21:02Z", "level": "ERROR", "logger": "rahbar.readiness", "msg": "EMBEDDING PIN CONFLICT", "request_id": "-", "index_embed_model": "nomic-embed-text", "api_embed_model": "mxbai-embed-large", "index_dimension": 768, "detail": "embedding model mismatch: index built with 'nomic-embed-text', API pinned to EMBED_MODEL='mxbai-embed-large'. Vectors from different models are not comparable; refusing to serve. Re-index or restore the ConfigMap."}

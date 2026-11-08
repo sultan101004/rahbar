@@ -1,0 +1,22 @@
+# cd.yml run on main, commit a2cb0cb (8 Nov 2026): test -> build-push -> deploy, all green
+# https://github.com/sultan101004/rahbar/actions/runs/42509093115
+
+Status: Downloaded newer image for ollama/ollama:0.6.8
+Status: Downloaded newer image for ghcr.io/sultan101004/rahbar-api:a2cb0cbe41e8046ad6c774b4a5f4cd71698ba8bd
+Status: Downloaded newer image for ghcr.io/sultan101004/rahbar-ui:a2cb0cbe41e8046ad6c774b4a5f4cd71698ba8bd
+Status: Downloaded newer image for ghcr.io/sultan101004/rahbar-indexer:a2cb0cbe41e8046ad6c774b4a5f4cd71698ba8bd
+deployment "api" successfully rolled out
+deployment "ui" successfully rolled out
+##[group]Run kubectl rollout status deployment/api -n rahbar --timeout=300s
+[36;1mkubectl rollout status deployment/api -n rahbar --timeout=300s[0m
+[36;1mkubectl rollout status deployment/ui -n rahbar --timeout=300s[0m
+deployment "api" successfully rolled out
+deployment "ui" successfully rolled out
+smoke test passed
+api-759fdcb454-5k5m6  ghcr.io/sultan101004/rahbar-api:a2cb0cbe41e8046ad6c774b4a5f4cd71698ba8bd
+api-759fdcb454-8nhfb  ghcr.io/sultan101004/rahbar-api:a2cb0cbe41e8046ad6c774b4a5f4cd71698ba8bd
+api-759fdcb454-hrn49  ghcr.io/sultan101004/rahbar-api:a2cb0cbe41e8046ad6c774b4a5f4cd71698ba8bd
+chroma-0  chromadb/chroma:1.0.12
+indexer-lx7hm  ghcr.io/sultan101004/rahbar-indexer:a2cb0cbe41e8046ad6c774b4a5f4cd71698ba8bd
+redis-57f955bd5d-t6cb6  redis:7.4.2-alpine
+ui-67478cbcb-76qbt  ghcr.io/sultan101004/rahbar-ui:a2cb0cbe41e8046ad6c774b4a5f4cd71698ba8bd

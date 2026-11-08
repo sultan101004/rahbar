@@ -141,7 +141,8 @@ jobs:
         if: failure()
         run: |
           kubectl get all -n rahbar || true
-          kubectl logs -n rahbar -l app=api --tail=100 || true
+          kubectl logs -n rahbar -l app=api --tail=100 --prefix | grep -v readiness || true
+          kubectl logs -n ingress-nginx -l app.kubernetes.io/component=controller --tail=40 || true
       - uses: actions/upload-artifact@v4
         if: always()
         with:

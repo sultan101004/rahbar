@@ -32,4 +32,7 @@ if ! kubectl rollout status deployment/api -n "$NS" --timeout=300s; then
   exit 1
 fi
 kubectl rollout status deployment/ui -n "$NS" --timeout=180s
+# readiness can flap once while the index swap settles: wait until every api pod is Ready
+kubectl wait --for=condition=Ready pod -l app=api -n "$NS" --timeout=180s
+kubectl get endpoints api -n "$NS"
 kubectl get pods,svc,ingress,endpoints -n "$NS"

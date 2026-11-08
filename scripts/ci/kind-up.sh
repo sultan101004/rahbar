@@ -6,7 +6,11 @@ CLUSTER=${CLUSTER:-rahbar}
 OLLAMA_IMAGE=${OLLAMA_IMAGE:-ollama/ollama:0.6.8}
 EMBED_MODEL=${EMBED_MODEL:-nomic-embed-text}
 
-kind create cluster --name "$CLUSTER" --config k8s/kind/kind-config.yaml --wait 120s
+kind create cluster --name "$CLUSTER" --config "${KIND_CONFIG:-k8s/kind/kind-config.yaml}" --wait "${KIND_WAIT:-120s}"
+if [ -n "${CNI_MANIFEST:-}" ]; then   # evidence cluster: Calico, so NetworkPolicy is enforced
+  kubectl apply -f "$CNI_MANIFEST"
+  kubectl wait -n kube-system --for=condition=Ready pod -l k8s-app=calico-node --timeout=300s
+fi
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.12.1/deploy/static/provider/kind/deploy.yaml
 
 docker run -d --name ollama --network kind "$OLLAMA_IMAGE"

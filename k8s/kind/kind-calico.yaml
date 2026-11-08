@@ -1,0 +1,18 @@
+# Evidence cluster (evidence.yml): kind WITHOUT its default CNI, so Calico can be installed
+# and NetworkPolicy is actually enforced, as `minikube start --cni=calico` does.
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+networking:
+  disableDefaultCNI: true
+  podSubnet: 192.168.0.0/16
+nodes:
+  - role: control-plane
+    kubeadmConfigPatches:
+      - |
+        kind: InitConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            node-labels: "ingress-ready=true"
+    extraPortMappings:
+      - {containerPort: 80, hostPort: 80, protocol: TCP}
+      - {containerPort: 443, hostPort: 443, protocol: TCP}

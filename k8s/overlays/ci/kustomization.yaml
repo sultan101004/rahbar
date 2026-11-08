@@ -15,6 +15,8 @@ patches:
     patch: |-
       - {op: replace, path: /data/LLM_PROVIDER, value: stub}
       - {op: replace, path: /data/OLLAMA_URL, value: "http://OLLAMA_HOST_IP:11434"}
+      # DEMO: the first-guess floor. The hostel question scores 0.559 and gets answered.
+      - {op: replace, path: /data/RELEVANCE_FLOOR, value: "0.55"}
   - target: {kind: Job, name: indexer}
     patch: |-
       - op: replace
@@ -22,11 +24,14 @@ patches:
         value: {name: corpus, configMap: {name: rahbar-corpus-fixtures}}
   - target: {kind: CronJob, name: reindex}
     patch: |-
-      - op: replace
+      - op: add
         path: /spec/suspend
         value: true
-  # kind's CNI does not enforce NetworkPolicy, and the runner's Ollama is not at the
-  # minikube host IP: drop the policies here; they are exercised on minikube with Calico.
+      - op: replace
+        path: /spec/jobTemplate/spec/template/spec/volumes/0
+        value: {name: corpus, configMap: {name: rahbar-corpus-fixtures}}
+  # The runner's Ollama is not at the minikube host IP: drop the policies here. The evidence
+  # workflow re-applies them on a Calico cluster with the right IP (evidence.yml).
   - target: {kind: NetworkPolicy}
     patch: |-
       $patch: delete

@@ -1,0 +1,15 @@
+# Delete an api pod while questions keep arriving through the Ingress
+# captured 2026-11-08T18:49:08Z on an ephemeral kind cluster (Calico CNI, metrics-server) in GitHub Actions, commit badbfb697fbfbebbd38c3e13e47b6ec98716245b
+
+$ kubectl delete pod api-549bf9ddbf-bc2k7 -n rahbar --wait=false
+pod "api-549bf9ddbf-bc2k7" deleted
+
+HTTP status of 30 questions asked during the deletion: 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200
+non-200 responses: 0
+
+$ kubectl get pods -n rahbar -l app=api
+NAME                   READY   STATUS    RESTARTS   AGE
+api-5cb84f7676-7nzkl   1/1     Running   0          40s
+api-5cb84f7676-kn7tk   1/1     Running   0          35s
+api-5cb84f7676-ptwlk   1/1     Running   0          44s
+

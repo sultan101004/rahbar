@@ -1,0 +1,26 @@
+# NetworkPolicy: deny by default; the ui pod must not reach chroma, the api pod must
+# captured 2026-11-08T18:47:58Z on an ephemeral kind cluster (Calico CNI, metrics-server) in GitHub Actions, commit badbfb697fbfbebbd38c3e13e47b6ec98716245b
+
+$ kubectl get networkpolicy -n rahbar
+NAME                          POD-SELECTOR   AGE
+allow-dns                     <none>         1s
+api-ingress-and-egress        app=api        1s
+chroma-from-api-and-indexer   app=chroma     1s
+default-deny-all              <none>         1s
+indexer-egress                app=indexer    1s
+redis-from-api                app=redis      1s
+ui-from-ingress               app=ui         1s
+
+$ kubectl exec -n rahbar ui-7bf64b8fd-8ww94 -- wget -q -O- -T 5 http://chroma:8000/api/v2/heartbeat || echo BLOCKED: ui cannot reach chroma
+wget: download timed out
+command terminated with exit code 1
+BLOCKED: ui cannot reach chroma
+
+$ kubectl exec -n rahbar api-5cb84f7676-4f62z -- python -c "import urllib.request;print(urllib.request.urlopen('http://chroma:8000/api/v2/heartbeat',timeout=5).read().decode())"
+{"nanosecond heartbeat":1794163684118779751}
+
+$ kubectl exec -n rahbar ui-7bf64b8fd-8ww94 -- wget -q -O- -T 5 http://redis:6379 || echo BLOCKED: ui cannot reach redis
+wget: download timed out
+command terminated with exit code 1
+BLOCKED: ui cannot reach redis
+

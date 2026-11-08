@@ -64,9 +64,11 @@ rate limit, not pods.
   58- and 64-page PDFs + 239 vectors in memory). We sampled `docker stats` every 2 s while the
   indexer image ran the same command the Job runs (`corpus/raw` mounted at `/corpus`). The api
   peaked at 173 MB (`memory.peak` in its cgroup), Chroma at 106 MB with 239 chunks, Redis at 13 MB.
-- **`kubectl top pods`:** these numbers come from Docker, not yet from the cluster. Replace them
-  with `kubectl top pods -n rahbar --containers` output captured during a re-index
-  (`docs/evidence/kubectl-top.txt`).
+- **`kubectl top pods`** on a cluster (`docs/evidence/kubectl-top.txt`, kind + metrics-server):
+  api 69-70Mi per replica, chroma 18Mi, redis 3Mi, ui 2Mi on the fixture corpus. That is far
+  under the api's 192Mi request, so the request could be lowered. The fixture re-index ran in
+  24 s, faster than metrics-server's sampling window, so the indexer's figure is the Docker peak
+  on the real corpus above.
 - **Limit:** `memory: 1536Mi` (`k8s/base/indexer.yaml:84`), request 512Mi. Margin: 1536 / 978
   = **57% headroom**. The api limit is 512Mi against a 173 MB peak.
 - **Exit code when it is wrong:** **137**, SIGKILL from the OOM killer, `OOMKilled` in

@@ -1,0 +1,35 @@
+# kubectl get endpoints -n rahbar, ephemeral kind cluster in cd.yml deploy (8 Nov 2026).
+# The api Service selector found 3 pods by label; nobody edited the Service.
+deployment.apps/ingress-nginx-controller created
+job.batch/ingress-nginx-admission-create created
+job.batch/ingress-nginx-admission-patch created
+ingressclass.networking.k8s.io/nginx created
+pod/ingress-nginx-controller-54d9445ccb-rkqzg condition met
+deployment.apps/api created
+deployment.apps/redis created
+deployment.apps/ui created
+statefulset.apps/chroma created
+horizontalpodautoscaler.autoscaling/api created
+job.batch/indexer created
+ingress.networking.k8s.io/rahbar created
+job.batch/indexer condition met
+deployment "api" successfully rolled out
+deployment "ui" successfully rolled out
+NAME                         READY   STATUS      RESTARTS   AGE
+pod/api-759fdcb454-5k5m6     1/1     Running     0          29s
+pod/api-759fdcb454-8nhfb     1/1     Running     0          29s
+pod/api-759fdcb454-hrn49     1/1     Running     0          29s
+pod/chroma-0                 1/1     Running     0          29s
+pod/indexer-lx7hm            0/1     Completed   0          29s
+pod/redis-57f955bd5d-t6cb6   1/1     Running     0          29s
+pod/ui-67478cbcb-76qbt       1/1     Running     0          29s
+ingress.networking.k8s.io/rahbar   nginx   rahbar.local             80      29s
+NAME                        ENDPOINTS                                          AGE
+endpoints/api               10.244.0.10:8000,10.244.0.8:8000,10.244.0.9:8000   29s
+endpoints/chroma            10.244.0.16:8000                                   29s
+endpoints/chroma-headless   10.244.0.16:8000                                   29s
+endpoints/redis             10.244.0.15:6379                                   29s
+endpoints/ui                10.244.0.11:8080                                   29s
+deployment "api" successfully rolled out
+deployment "ui" successfully rolled out
+NAME    READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS   IMAGES                                                                     SELECTOR

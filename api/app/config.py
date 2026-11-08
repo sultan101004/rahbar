@@ -40,6 +40,17 @@ class Settings:
     ollama_url: str = "http://host.minikube.internal:11434"
     hosted_base_url: str = ""        # e.g. an OpenAI-compatible endpoint
     llm_api_key: str = field(default="", repr=False)   # from the Secret; never log it
+    llm_timeout_s: float = 90.0      # a hung model call must not hold a worker forever
+    max_output_tokens: int = 700
+
+    # Grounding (3.4): a passage below this cosine similarity is not evidence.
+    relevance_floor: float = 0.70
+
+    # Semantic cache (3.3). Empty REDIS_URL disables the cache (unit tests, local dev).
+    redis_url: str = ""
+    cache_threshold: float = 0.93
+    cache_ttl_s: int = 86400
+    cache_max_entries: int = 500
 
     log_level: str = "INFO"
 
@@ -58,5 +69,12 @@ def get_settings() -> Settings:
         ollama_url=os.environ.get("OLLAMA_URL", "http://host.minikube.internal:11434"),
         hosted_base_url=os.environ.get("HOSTED_BASE_URL", ""),
         llm_api_key=os.environ.get("LLM_API_KEY", ""),
+        llm_timeout_s=_float("LLM_TIMEOUT_S", 90.0),
+        max_output_tokens=_int("MAX_OUTPUT_TOKENS", 700),
+        relevance_floor=_float("RELEVANCE_FLOOR", 0.70),
+        redis_url=os.environ.get("REDIS_URL", ""),
+        cache_threshold=_float("CACHE_THRESHOLD", 0.93),
+        cache_ttl_s=_int("CACHE_TTL_S", 86400),
+        cache_max_entries=_int("CACHE_MAX_ENTRIES", 500),
         log_level=os.environ.get("LOG_LEVEL", "INFO"),
     )

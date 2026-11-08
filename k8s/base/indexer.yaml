@@ -1,0 +1,178 @@
+# The indexer: the ONLY writer to Chroma (ADR 0001). A one-shot Job, plus a weekly CronJob
+# with the same image and arguments. Re-index with no redeploy:
+#   kubectl create job --from=cronjob/reindex manual-reindex-1 -n rahbar
+#
+# The documents reach the Job on the rahbar-corpus PVC, loaded by `make corpus-load`
+# (k8s/tools/corpus-loader.yaml). The init containers make the Job wait for both the
+# corpus and Chroma instead of burning its backoffLimit on a race at first apply.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: rahbar-corpus
+  namespace: rahbar
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: indexer
+  namespace: rahbar
+  labels: {app: indexer, app.kubernetes.io/part-of: rahbar}
+spec:
+  backoffLimit: 3
+  activeDeadlineSeconds: 3600
+  ttlSecondsAfterFinished: 604800
+  template:
+    metadata:
+      labels: {app: indexer, app.kubernetes.io/part-of: rahbar}
+    spec:
+      restartPolicy: OnFailure
+      serviceAccountName: indexer
+      automountServiceAccountToken: false
+      # no CHROMA_PORT=tcp://... service-link env: Chroma reads CHROMA_* as its config
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile: {type: RuntimeDefault}
+      initContainers:
+        - name: wait-for-corpus
+          image: busybox:1.37.0
+          command: ["sh", "-c", "until [ -n \"$(ls -A /corpus 2>/dev/null)\" ]; do echo waiting for corpus; sleep 5; done"]
+          resources:
+            requests: {cpu: 5m, memory: 8Mi}
+            limits: {cpu: 50m, memory: 16Mi}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - {name: corpus, mountPath: /corpus, readOnly: true}
+        - name: wait-for-chroma
+          image: busybox:1.37.0
+          command: ["sh", "-c", "until wget -q -O- http://chroma:8000/api/v2/heartbeat; do echo waiting for chroma; sleep 3; done"]
+          resources:
+            requests: {cpu: 5m, memory: 8Mi}
+            limits: {cpu: 50m, memory: 16Mi}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+      containers:
+        - name: indexer
+          image: rahbar-indexer
+          imagePullPolicy: IfNotPresent
+          args: []
+          envFrom:
+            - configMapRef: {name: rahbar-config}
+          env:
+            - {name: CORPUS_DIR, value: /corpus}
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+            limits:
+              cpu: "2"
+              memory: 1536Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - {name: corpus, mountPath: /corpus, readOnly: true}
+            - {name: tmp, mountPath: /tmp}
+      volumes:
+        - name: corpus
+          persistentVolumeClaim:
+            claimName: rahbar-corpus
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: reindex
+  namespace: rahbar
+  labels: {app: indexer, app.kubernetes.io/part-of: rahbar}
+spec:
+  schedule: "0 3 * * 1"              # weekly, Monday 03:00
+  timeZone: "Asia/Karachi"
+  concurrencyPolicy: Forbid          # never two writers
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      backoffLimit: 3
+      activeDeadlineSeconds: 3600
+      ttlSecondsAfterFinished: 604800
+      template:
+        metadata:
+          labels: {app: indexer, app.kubernetes.io/part-of: rahbar}
+        spec:
+          restartPolicy: OnFailure
+          serviceAccountName: indexer
+          automountServiceAccountToken: false
+          # no CHROMA_PORT=tcp://... service-link env: Chroma reads CHROMA_* as its config
+          enableServiceLinks: false
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10001
+            runAsGroup: 10001
+            fsGroup: 10001
+            seccompProfile: {type: RuntimeDefault}
+          initContainers:
+            - name: wait-for-chroma
+              image: busybox:1.37.0
+              command: ["sh", "-c", "until wget -q -O- http://chroma:8000/api/v2/heartbeat; do sleep 3; done"]
+              resources:
+                requests: {cpu: 5m, memory: 8Mi}
+                limits: {cpu: 50m, memory: 16Mi}
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop:
+                    - ALL
+          containers:
+            - name: indexer
+              image: rahbar-indexer
+              imagePullPolicy: IfNotPresent
+              args: []
+              envFrom:
+                - configMapRef: {name: rahbar-config}
+              env:
+                - {name: CORPUS_DIR, value: /corpus}
+              resources:
+                requests:
+                  cpu: 500m
+                  memory: 512Mi
+                limits:
+                  cpu: "2"
+                  memory: 1536Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop:
+                    - ALL
+              volumeMounts:
+                - {name: corpus, mountPath: /corpus, readOnly: true}
+                - {name: tmp, mountPath: /tmp}
+          volumes:
+            - name: corpus
+              persistentVolumeClaim:
+                claimName: rahbar-corpus
+            - name: tmp
+              emptyDir: {}

@@ -1,0 +1,43 @@
+# CI (kind, in the e2e-eval job): the three fixture documents instead of the real corpus,
+# delivered as a ConfigMap the workflow creates from eval/fixtures/; the stub LLM so CI
+# needs no generation model; embeddings from Ollama on the runner (OLLAMA_URL is patched
+# in by the workflow). Retrieval, the floor, the citation check and the gate are real.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base
+images:
+  - {name: rahbar-api, newTag: ci}
+  - {name: rahbar-ui, newTag: ci}
+  - {name: rahbar-indexer, newTag: ci}
+patches:
+  - target: {kind: ConfigMap, name: rahbar-config}
+    patch: |-
+      - {op: replace, path: /data/LLM_PROVIDER, value: stub}
+      - {op: replace, path: /data/OLLAMA_URL, value: "http://OLLAMA_HOST_IP:11434"}
+  - target: {kind: Job, name: indexer}
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/volumes/0
+        value: {name: corpus, configMap: {name: rahbar-corpus-fixtures}}
+  - target: {kind: CronJob, name: reindex}
+    patch: |-
+      - op: replace
+        path: /spec/suspend
+        value: true
+  # kind's CNI does not enforce NetworkPolicy, and the runner's Ollama is not at the
+  # minikube host IP: drop the policies here; they are exercised on minikube with Calico.
+  - target: {kind: NetworkPolicy}
+    patch: |-
+      $patch: delete
+      apiVersion: networking.k8s.io/v1
+      kind: NetworkPolicy
+      metadata:
+        name: any
+  - target: {kind: PersistentVolumeClaim, name: rahbar-corpus}
+    patch: |-
+      $patch: delete
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: rahbar-corpus

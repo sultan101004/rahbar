@@ -1,0 +1,40 @@
+# The one place every tunable lives. The api AND the indexer read EMBED_MODEL from here:
+# that shared key is the embedding pin (section 4.4). Every number is justified in
+# docs/PIPELINE.md with a measurement.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rahbar-config
+  namespace: rahbar
+data:
+  # --- implementations
+  RETRIEVER: "chroma"
+  LLM_PROVIDER: "ollama-host"          # stub | ollama-host | ollama-incluster | hosted
+  # --- the pin: indexer and api must agree, the api refuses readiness otherwise
+  EMBED_MODEL: "nomic-embed-text"
+  # --- vector store
+  CHROMA_HOST: "chroma"
+  CHROMA_PORT: "8000"
+  CHROMA_COLLECTION: "rahbar"
+  # --- chunking (indexer): 300 words / 40 overlap won the 3-way measurement (PIPELINE.md)
+  CHUNK_SIZE: "300"
+  CHUNK_OVERLAP: "40"
+  CHUNK_STRATEGY: "structure"
+  # --- retrieval (api): top_k=5 is where recall@5 reaches 1.0; k=8 adds nothing
+  TOP_K: "5"
+  # lowest floor that abstains on every must-abstain question (max top-1 = 0.69) while
+  # keeping every answerable one (min top-1 = 0.72)
+  RELEVANCE_FLOOR: "0.70"
+  # --- semantic cache: lowest threshold with zero false hits (0.90 had one: 0.909)
+  CACHE_THRESHOLD: "0.93"
+  CACHE_TTL_S: "86400"
+  REDIS_URL: "redis://redis:6379/0"
+  # --- generation: facts and JSON belong at 0-0.3; 0.1 keeps wording stable without
+  # pretending temperature fixes hallucination (it does not; the floor and citations do)
+  TEMPERATURE: "0.1"
+  LLM_MODEL: "llama3.2:3b"
+  LLM_TIMEOUT_S: "150"
+  MAX_OUTPUT_TOKENS: "700"
+  OLLAMA_URL: "http://host.minikube.internal:11434"
+  HOSTED_BASE_URL: ""
+  LOG_LEVEL: "INFO"

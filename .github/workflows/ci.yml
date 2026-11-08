@@ -1,0 +1,150 @@
+# CI: every push to dev and every pull request to main. Nothing here publishes anything.
+name: ci
+
+on:
+  push:
+    branches: [dev]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.12"
+  KUBECONFORM_VERSION: "v0.6.7"
+  TRIVY_IMAGE: "aquasec/trivy:0.63.0"
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - run: pip install -r api/requirements-dev.txt -r indexer/requirements-dev.txt
+      - name: ruff
+        run: ruff check api indexer eval corpus tests
+      - name: mypy
+        run: |
+          (cd api && mypy app)
+          (cd indexer && mypy pipeline)
+
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - run: pip install -r api/requirements-dev.txt -r indexer/requirements-dev.txt pytest-cov==6.1.1
+      - name: pytest (stub retriever and stub provider - no network, no model)
+        env:
+          RETRIEVER: stub
+          LLM_PROVIDER: stub
+        run: |
+          (cd api && pytest -q --cov=app --cov-report=term-missing --cov-fail-under=60)
+          (cd indexer && pytest -q)
+          pytest -q tests
+
+  manifests:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: install kubeconform
+        run: |
+          curl -sSL "https://github.com/yannh/kubeconform/releases/download/${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz" | tar xz kubeconform
+          sudo mv kubeconform /usr/local/bin/
+      - name: kustomize build | kubeconform -strict
+        run: |
+          for overlay in prod dev ci; do
+            echo "== $overlay"
+            kustomize build "k8s/overlays/$overlay" | kubeconform -strict -summary -kubernetes-version 1.31.0 -
+          done
+
+  build:
+    runs-on: ubuntu-24.04
+    needs: [lint, test]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: build images (no push on a pull request, or anywhere in CI)
+        run: |
+          docker build -t rahbar-api:ci api
+          docker build -t rahbar-ui:ci ui
+          docker build -t rahbar-indexer:ci indexer
+          docker save rahbar-api:ci rahbar-ui:ci rahbar-indexer:ci | gzip > images.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: images
+          path: images.tar.gz
+          retention-days: 1
+
+  scan:
+    runs-on: ubuntu-24.04
+    needs: [build]
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: images
+      - run: gunzip -c images.tar.gz | docker load
+      - name: trivy (fail on HIGH/CRITICAL with a fix available)
+        run: |
+          for image in rahbar-api:ci rahbar-ui:ci rahbar-indexer:ci; do
+            echo "== $image"
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock "$TRIVY_IMAGE" \
+              image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 --no-progress "$image"
+          done
+
+  e2e-eval:
+    runs-on: ubuntu-24.04
+    needs: [build, manifests]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - run: pip install httpx==0.28.1 pyyaml==6.0.2
+      - uses: actions/download-artifact@v4
+        with:
+          name: images
+      - run: gunzip -c images.tar.gz | docker load
+      - uses: helm/kind-action@v1.12.0
+        with:
+          install_only: true
+      - name: kind cluster, ingress-nginx, Ollama (embeddings)
+        run: scripts/ci/kind-up.sh
+      - name: load images into kind
+        run: |
+          for image in rahbar-api:ci rahbar-ui:ci rahbar-indexer:ci; do
+            kind load docker-image "$image" --name rahbar
+          done
+      - name: deploy, run the indexer Job on the fixture corpus, wait for the rollout
+        run: scripts/ci/deploy-fixtures.sh rahbar-api:ci rahbar-ui:ci rahbar-indexer:ci
+      - name: smoke test through the Ingress
+        run: scripts/ci/smoke.sh
+      - name: eval gate (section 5.4) on the fixture golden set
+        run: |
+          python eval/run_eval.py --api http://localhost --host rahbar.local \
+            --golden eval/fixtures/golden.fixture.yaml \
+            --baseline eval/fixtures/baseline.fixture.json \
+            --out results-ci.json
+      - name: diagnostics
+        if: failure()
+        run: |
+          kubectl get all -n rahbar || true
+          kubectl logs -n rahbar -l app=api --tail=100 || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eval-results
+          path: results-ci.json
+          if-no-files-found: ignore

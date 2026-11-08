@@ -2,15 +2,17 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Response
 
 from ..schemas import AskRequest, AskResponse
-from ..services.answer import answer_question
+from ..services.answer import run
 
 router = APIRouter(prefix="/api")
 
 
 @router.post("/ask", response_model=AskResponse)
-def ask(body: AskRequest, request: Request) -> AskResponse:
+def ask(body: AskRequest, request: Request, response: Response) -> AskResponse:
     state = request.app.state
-    return answer_question(body.question, state.retriever, state.provider, state.settings)
+    outcome = run(body.question, state.retriever, state.provider, state.settings, state.cache)
+    response.headers["X-Cache"] = "HIT" if outcome.cached else "MISS"
+    return outcome.response

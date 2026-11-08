@@ -13,7 +13,7 @@ INGRESS_IP ?= $(shell minikube ip 2>/dev/null)
 HOST ?= rahbar.local
 
 .DEFAULT_GOAL := help
-.PHONY: help install test lint dev cluster images apply secret index ask fetch eval eval-fixtures check
+.PHONY: help install test lint dev cluster images apply secret corpus-load index ask fetch eval eval-fixtures check up
 
 help: ## list the targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-14s %s\n", $$1, $$2}'
@@ -23,9 +23,10 @@ install: ## create .venv and install the api, indexer and tool dependencies
 	$(BIN)/pip install -q --upgrade pip
 	$(BIN)/pip install -q -r api/requirements-dev.txt -r indexer/requirements-dev.txt
 
-test: ## run the api and indexer tests (stubs only: no cluster, no model, no network)
-	cd api && $(BIN)/pytest -q
+test: ## run the api, indexer and eval tests (stubs only: no cluster, no model, no network)
+	cd api && $(BIN)/pytest -q --cov=app --cov-fail-under=60
 	cd indexer && $(BIN)/pytest -q
+	$(BIN)/pytest -q tests
 
 lint: ## ruff and mypy over everything in Python
 	$(BIN)/ruff check api indexer eval corpus
@@ -55,6 +56,19 @@ secret: ## create the LLM key Secret from the LLM_API_KEY variable; never from a
 	@test -n "$$LLM_API_KEY" || { echo "export LLM_API_KEY=... first"; exit 1; }
 	kubectl create secret generic rahbar-secret -n $(NS) \
 	  --from-literal=LLM_API_KEY="$$LLM_API_KEY" --dry-run=client -o yaml | kubectl apply -f -
+
+corpus-load: ## copy corpus/raw/ into the rahbar-corpus PVC (run `make fetch` first)
+	@test -f corpus/raw/_index.json || { echo "run make fetch first"; exit 1; }
+	kubectl apply -f k8s/tools/corpus-loader.yaml
+	kubectl wait --for=condition=Ready pod/corpus-loader -n $(NS) --timeout=120s
+	cd corpus/raw && tar cf - --exclude=_out . | kubectl exec -i -n $(NS) corpus-loader -- tar xf - -C /corpus
+	kubectl exec -n $(NS) corpus-loader -- ls -la /corpus
+	kubectl delete pod corpus-loader -n $(NS) --wait=false
+
+up: ## clean clone to answered question: cluster, images, apply, corpus, wait for the index
+	$(MAKE) cluster images apply corpus-load
+	kubectl wait --for=condition=complete job/indexer -n $(NS) --timeout=30m
+	kubectl rollout status deployment/api -n $(NS) --timeout=5m
 
 index: ## run the indexer once, from the CronJob's template (needs yours: CronJob reindex)
 	kubectl create job --from=cronjob/reindex reindex-$$(date +%s) -n $(NS)

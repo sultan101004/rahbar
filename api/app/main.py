@@ -21,6 +21,8 @@ from .logjson import configure_logging, request_id_var
 from .providers.llm import get_provider
 from .retrieval import get_retriever
 from .routes import ask, health, metrics
+from .services.cache import build_cache
+from .services.readiness import startup_pin_check
 
 log = logging.getLogger("rahbar.api")
 
@@ -32,13 +34,18 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.settings = settings
     app.state.retriever = get_retriever(settings)
     app.state.provider = get_provider(settings)
-    # STARTER-TODO(4.4): compare the collection's embedding-model metadata with
-    # settings.embed_model here, and make /readyz fail on a mismatch.
-    # This process only reads the index. The indexer Job writes it.
+    app.state.cache = build_cache(settings.redis_url, settings.cache_threshold,
+                                  settings.cache_ttl_s, settings.cache_max_entries)
+    # The embedding pin (4.4): compare the collection's embed_model metadata with
+    # EMBED_MODEL. On a mismatch this logs the conflict and /readyz keeps answering 503.
+    # This process only reads the index. The indexer Job writes it (ADR 0001).
+    app.state.pin_conflict = startup_pin_check(app.state.retriever, settings)
     log.info(
         "api started",
         extra={"retriever": settings.retriever, "llm_provider": settings.llm_provider,
-               "embed_model": settings.embed_model, "top_k": settings.top_k},
+               "embed_model": settings.embed_model, "top_k": settings.top_k,
+               "relevance_floor": settings.relevance_floor, "temperature": settings.temperature,
+               "cache": app.state.cache.enabled, "cache_threshold": settings.cache_threshold},
     )
     yield
 

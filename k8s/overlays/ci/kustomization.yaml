@@ -15,8 +15,6 @@ patches:
     patch: |-
       - {op: replace, path: /data/LLM_PROVIDER, value: stub}
       - {op: replace, path: /data/OLLAMA_URL, value: "http://OLLAMA_HOST_IP:11434"}
-      # DEMO: the first-guess floor. The hostel question scores 0.559 and gets answered.
-      - {op: replace, path: /data/RELEVANCE_FLOOR, value: "0.55"}
   - target: {kind: Job, name: indexer}
     patch: |-
       - op: replace

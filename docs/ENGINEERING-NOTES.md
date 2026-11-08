@@ -139,3 +139,22 @@ case is the dangerous one, and the guardrail turns it into a loud, safe one.
   `indexer/pipeline/extract.py`. The gutter detector stayed, because the three-column Prospectus
   genuinely needs it. Lesson: inspect the raw coordinates before writing a heuristic about the
   layout.
+
+### Also: chroma-0 in CrashLoopBackOff on the first CI cluster
+
+Chroma ran locally but crash-looped on kind. That was two causes in sequence, each found with
+one command:
+
+1. **`unable to open database file`.** Reproduced locally with the pod's exact security
+   settings (`--user 1000 --read-only --cap-drop ALL` on a root-owned volume). The kind and
+   minikube volume provisioners ignore `fsGroup`, so `/data` stayed root-owned. Fix: a
+   `fix-permissions` init container that only chowns `/data`, with only `CAP_CHOWN`.
+2. **`Error loading config: invalid type: found string "tcp://10.96.0.10:8000", expected u16
+   for key "PORT" in CHROMA_ environment variable(s)`.** Kubernetes injects service-link
+   variables for every Service, and our Service is named `chroma`, so the pod got
+   `CHROMA_PORT=tcp://...`. Chroma reads `CHROMA_*` as its own config. Fix:
+   `enableServiceLinks: false` on every pod.
+
+The same CI run also showed the API crashing at startup when Chroma was down, because
+`chromadb.HttpClient()` connects in its constructor. Now the client is created lazily and a down
+Chroma means `/readyz` 503, never a dead pod (`api/app/retrieval/chroma.py`, `client` property).

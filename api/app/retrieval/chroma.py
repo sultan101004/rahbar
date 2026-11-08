@@ -47,14 +47,30 @@ class ChromaRetriever:
     name = "chroma"
 
     def __init__(self, settings: Settings) -> None:
-        import chromadb  # the thin client, from chromadb-client in requirements.txt
-        from chromadb.config import Settings as ChromaSettings
+        from chromadb.config import Settings as ChromaSettings  # thin client, chromadb-client
 
         self.settings = settings
-        self.client = chromadb.HttpClient(host=settings.chroma_host, port=settings.chroma_port,
-                                          settings=ChromaSettings(anonymized_telemetry=False))
+        self._chroma_settings = ChromaSettings(anonymized_telemetry=False)
+        self._client: Any = None
         self.embedder = OllamaEmbedder(settings)
         self._info: tuple[float, IndexInfo] | None = None
+
+    @property
+    def client(self) -> Any:
+        """Connected on first use, not at startup: HttpClient() contacts Chroma immediately,
+        and an API that crashes when Chroma is down turns a slow dependency into a
+        CrashLoopBackOff. Down Chroma must mean not-ready (/readyz 503), never dead."""
+        if self._client is None:
+            import chromadb
+
+            self._client = chromadb.HttpClient(host=self.settings.chroma_host,
+                                               port=self.settings.chroma_port,
+                                               settings=self._chroma_settings)
+        return self._client
+
+    @client.setter
+    def client(self, value: Any) -> None:
+        self._client = value
 
     # ---------------------------------------------------------------- index metadata
     def _collection(self) -> Any:

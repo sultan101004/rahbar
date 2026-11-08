@@ -1,0 +1,66 @@
+# Final state
+# captured 2026-11-08T18:50:53Z on an ephemeral kind cluster (Calico CNI, metrics-server) in GitHub Actions, commit badbfb697fbfbebbd38c3e13e47b6ec98716245b
+
+$ kubectl get all,pvc,ingress,networkpolicy -n rahbar
+NAME                         READY   STATUS        RESTARTS   AGE
+pod/api-5cb84f7676-7nzkl     1/1     Terminating   0          115s
+pod/api-5cb84f7676-kn7tk     1/1     Terminating   0          110s
+pod/api-5cb84f7676-ptwlk     1/1     Terminating   0          119s
+pod/api-66467c7689-2qshh     1/1     Running       0          14s
+pod/api-66467c7689-v722v     1/1     Running       0          5s
+pod/api-66467c7689-vnnzl     1/1     Running       0          9s
+pod/chroma-0                 1/1     Running       0          3m24s
+pod/indexer-4hcxv            0/1     Completed     0          3m24s
+pod/manual-reindex-1-xqnjv   0/1     Completed     0          2m44s
+pod/redis-57f955bd5d-c88zw   1/1     Running       0          3m24s
+pod/ui-7bf64b8fd-8ww94       1/1     Running       0          3m24s
+
+NAME                      TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+service/api               ClusterIP   10.96.213.170   <none>        8000/TCP   3m24s
+service/chroma            ClusterIP   10.96.229.58    <none>        8000/TCP   3m24s
+service/chroma-headless   ClusterIP   None            <none>        8000/TCP   3m24s
+service/redis             ClusterIP   10.96.34.211    <none>        6379/TCP   3m24s
+service/ui                ClusterIP   10.96.130.132   <none>        80/TCP     3m24s
+
+NAME                    READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/api     3/3     3            3           3m24s
+deployment.apps/redis   1/1     1            1           3m24s
+deployment.apps/ui      1/1     1            1           3m24s
+
+NAME                               DESIRED   CURRENT   READY   AGE
+replicaset.apps/api-549bf9ddbf     0         0         0       2m13s
+replicaset.apps/api-5cb84f7676     0         0         0       3m24s
+replicaset.apps/api-66467c7689     3         3         3       14s
+replicaset.apps/api-cf448c5f9      0         0         0       74s
+replicaset.apps/redis-57f955bd5d   1         1         1       3m24s
+replicaset.apps/ui-7bf64b8fd       1         1         1       3m24s
+
+NAME                      READY   AGE
+statefulset.apps/chroma   1/1     3m24s
+
+NAME                                      REFERENCE        TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/api   Deployment/api   cpu: 2%/70%   3         8         3          3m24s
+
+NAME                    SCHEDULE    TIMEZONE       SUSPEND   ACTIVE   LAST SCHEDULE   AGE
+cronjob.batch/reindex   0 3 * * 1   Asia/Karachi   True      0        <none>          3m24s
+
+NAME                         STATUS     COMPLETIONS   DURATION   AGE
+job.batch/indexer            Complete   1/1           24s        3m24s
+job.batch/manual-reindex-1   Complete   1/1           9s         2m44s
+
+NAME                                         STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+persistentvolumeclaim/cache-data             Bound    pvc-098dd739-bc95-4b11-b4d7-75a75517ac2b   1Gi        RWO            standard       <unset>                 3m24s
+persistentvolumeclaim/chroma-data-chroma-0   Bound    pvc-c02bba61-a1f1-41db-8db3-9a2aea642f1a   2Gi        RWO            standard       <unset>                 3m24s
+
+NAME                               CLASS   HOSTS          ADDRESS     PORTS   AGE
+ingress.networking.k8s.io/rahbar   nginx   rahbar.local   localhost   80      3m24s
+
+NAME                                                          POD-SELECTOR   AGE
+networkpolicy.networking.k8s.io/allow-dns                     <none>         2m56s
+networkpolicy.networking.k8s.io/api-ingress-and-egress        app=api        2m56s
+networkpolicy.networking.k8s.io/chroma-from-api-and-indexer   app=chroma     2m56s
+networkpolicy.networking.k8s.io/default-deny-all              <none>         2m56s
+networkpolicy.networking.k8s.io/indexer-egress                app=indexer    2m56s
+networkpolicy.networking.k8s.io/redis-from-api                app=redis      2m56s
+networkpolicy.networking.k8s.io/ui-from-ingress               app=ui         2m56s
+

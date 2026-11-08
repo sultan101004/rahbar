@@ -1,0 +1,66 @@
+# kubectl top pods --containers, sampled every 5 s during a re-index (kubectl create job --from=cronjob/reindex)
+# captured 2026-11-08T18:48:09Z on an ephemeral kind cluster (Calico CNI, metrics-server) in GitHub Actions, commit badbfb697fbfbebbd38c3e13e47b6ec98716245b
+
+$ kubectl create job --from=cronjob/reindex manual-reindex-1 -n rahbar
+job.batch/manual-reindex-1 created
+
+--- sample 1
+POD                      NAME     CPU(cores)   MEMORY(bytes)   
+api-5cb84f7676-4f62z     api      5m           69Mi            
+api-5cb84f7676-fj5hw     api      240m         68Mi            
+api-5cb84f7676-r7n64     api      6m           70Mi            
+chroma-0                 chroma   8m           18Mi            
+redis-57f955bd5d-c88zw   redis    12m          3Mi             
+ui-7bf64b8fd-8ww94       ui       0m           2Mi             
+--- sample 2
+POD                      NAME     CPU(cores)   MEMORY(bytes)   
+api-5cb84f7676-4f62z     api      5m           69Mi            
+api-5cb84f7676-fj5hw     api      4m           70Mi            
+api-5cb84f7676-r7n64     api      3m           70Mi            
+chroma-0                 chroma   2m           18Mi            
+redis-57f955bd5d-c88zw   redis    6m           3Mi             
+ui-7bf64b8fd-8ww94       ui       3m           2Mi             
+--- sample 3
+POD                      NAME     CPU(cores)   MEMORY(bytes)   
+api-5cb84f7676-4f62z     api      5m           69Mi            
+api-5cb84f7676-fj5hw     api      4m           70Mi            
+api-5cb84f7676-r7n64     api      3m           70Mi            
+chroma-0                 chroma   2m           18Mi            
+redis-57f955bd5d-c88zw   redis    6m           3Mi             
+ui-7bf64b8fd-8ww94       ui       3m           2Mi             
+--- sample 4
+POD                      NAME     CPU(cores)   MEMORY(bytes)   
+api-5cb84f7676-4f62z     api      5m           69Mi            
+api-5cb84f7676-fj5hw     api      4m           70Mi            
+api-5cb84f7676-r7n64     api      3m           70Mi            
+chroma-0                 chroma   2m           18Mi            
+redis-57f955bd5d-c88zw   redis    6m           3Mi             
+ui-7bf64b8fd-8ww94       ui       3m           2Mi             
+--- sample 5
+POD                      NAME     CPU(cores)   MEMORY(bytes)   
+api-5cb84f7676-4f62z     api      16m          70Mi            
+api-5cb84f7676-fj5hw     api      2m           70Mi            
+api-5cb84f7676-r7n64     api      2m           70Mi            
+chroma-0                 chroma   6m           23Mi            
+redis-57f955bd5d-c88zw   redis    6m           3Mi             
+ui-7bf64b8fd-8ww94       ui       1m           2Mi             
+--- sample 6
+POD                      NAME     CPU(cores)   MEMORY(bytes)   
+api-5cb84f7676-4f62z     api      16m          70Mi            
+api-5cb84f7676-fj5hw     api      2m           70Mi            
+api-5cb84f7676-r7n64     api      2m           70Mi            
+chroma-0                 chroma   6m           23Mi            
+redis-57f955bd5d-c88zw   redis    6m           3Mi             
+ui-7bf64b8fd-8ww94       ui       1m           2Mi             
+
+$ kubectl get jobs -n rahbar
+NAME               STATUS     COMPLETIONS   DURATION   AGE
+indexer            Complete   1/1           24s        66s
+manual-reindex-1   Complete   1/1           9s         26s
+
+$ kubectl logs -n rahbar job/manual-reindex-1 | tail -3
+Defaulted container "indexer" out of: indexer, wait-for-chroma (init)
+{"logger": "rahbar.indexer.embed", "msg": "embedded", "done": 11, "total": 11}
+{"logger": "rahbar.indexer.store", "msg": "index published", "collection": "rahbar", "chunks": 11, "index_id": "20261108T184815Z", "embed_model": "nomic-embed-text", "dimension": 768}
+{"ts": "2026-11-08T18:48:15Z", "logger": "rahbar.indexer", "msg": "indexer finished", "chunks": 11, "seconds": 3.7}
+

@@ -1,0 +1,31 @@
+# Scale to 4: the Service's selector finds the new pod by label; the Service is not touched
+# captured 2026-11-08T18:48:35Z on an ephemeral kind cluster (Calico CNI, metrics-server) in GitHub Actions, commit badbfb697fbfbebbd38c3e13e47b6ec98716245b
+
+$ kubectl get endpoints api -n rahbar
+NAME   ENDPOINTS                                                     AGE
+api    192.168.183.74:8000,192.168.183.75:8000,192.168.183.76:8000   66s
+
+$ kubectl scale deployment/api -n rahbar --replicas=4
+deployment.apps/api scaled
+
+$ kubectl rollout status deployment/api -n rahbar --timeout=180s
+Waiting for deployment "api" rollout to finish: 3 of 4 updated replicas are available...
+deployment "api" successfully rolled out
+
+$ kubectl wait --for=condition=Ready pod -l app=api -n rahbar --timeout=120s
+pod/api-5cb84f7676-4f62z condition met
+pod/api-5cb84f7676-fj5hw condition met
+pod/api-5cb84f7676-pp5m5 condition met
+pod/api-5cb84f7676-r7n64 condition met
+
+$ kubectl get endpoints api -n rahbar
+NAME   ENDPOINTS                                                                 AGE
+api    192.168.183.74:8000,192.168.183.75:8000,192.168.183.76:8000 + 1 more...   71s
+
+$ kubectl get pods -n rahbar -l app=api -o wide
+NAME                   READY   STATUS    RESTARTS   AGE   IP               NODE                   NOMINATED NODE   READINESS GATES
+api-5cb84f7676-4f62z   1/1     Running   0          71s   192.168.183.76   rahbar-control-plane   <none>           <none>
+api-5cb84f7676-fj5hw   1/1     Running   0          71s   192.168.183.74   rahbar-control-plane   <none>           <none>
+api-5cb84f7676-pp5m5   1/1     Running   0          5s    192.168.183.84   rahbar-control-plane   <none>           <none>
+api-5cb84f7676-r7n64   1/1     Running   0          71s   192.168.183.75   rahbar-control-plane   <none>           <none>
+

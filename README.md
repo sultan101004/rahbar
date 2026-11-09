@@ -102,9 +102,12 @@ Measured on 8 Nov 2026 against the local stack (llama3.2:3b on CPU, nomic-embed-
 | answered, of answerable questions | 71% (declined: q02, q06, q11, q14, q20) |
 | answer contains the expected fact | 62% |
 
-Retrieval is solid. Generation is the weak stage: the 3B model sometimes declines when the
-evidence is there, or paraphrases away the exact figure. That is a safe failure (declining,
-never inventing), and it is the next thing to improve with a larger model or a hosted provider.
+Retrieval is solid; the small local model was the weak stage (it sometimes declined when the
+evidence was there). The same pipeline with a hosted model, `LLM_PROVIDER=hosted` on Groq's
+free tier (`openai/gpt-oss-120b`), answered **17/17** answerable questions in 1-2 s, all correct by
+manual review, with 100% citation validity and 100% abstention (`eval/results-hosted.json`,
+`eval/MANUAL-REVIEW.md`). Greetings and content-free inputs ("hey", "what?") get a usage hint
+instead of a search (`api/app/services/smalltalk.py`).
 
 The CI gate (`eval/run_eval.py`) fails the build when recall@5 drops more than 5 points below
 `eval/baseline.json`, when any must-abstain question is answered, or when citation validity is

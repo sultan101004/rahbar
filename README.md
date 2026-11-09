@@ -74,7 +74,16 @@ make ask Q="How do I apply for a hostel room?"     # declines: not in the corpus
 kubectl delete pod -n rahbar -l app=api --wait=false && make ask Q="What is the deadline to withdraw from a course?"
 ```
 
-`make up` runs steps 3 to 7 in one go. Open `http://rahbar.local` for the chat UI.
+`make up` runs steps 3 to 7 in one go.
+
+**minikube on Docker Desktop, or a laptop with little RAM** (how we ran it, see
+`docs/evidence/minikube/`): use `kubectl apply -k k8s/overlays/dev-docker-desktop`. It points
+Ollama at `host.docker.internal` (192.168.65.254) and generates through the hosted provider:
+create the Secret first with
+`kubectl create secret generic rahbar-secret -n rahbar --from-env-file ~/.config/rahbar/groq.env`.
+Docker Desktop hides the minikube IP, so reach the Ingress with
+`kubectl port-forward -n ingress-nginx svc/ingress-nginx-controller 8080:80` and
+`curl -H "Host: rahbar.local" localhost:8080/...`. Open `http://rahbar.local` for the chat UI.
 
 **Re-index with no redeploy:** `kubectl create job --from=cronjob/reindex manual-reindex-1 -n rahbar`.
 The new index is built beside the live one and swapped in; the semantic cache follows the new

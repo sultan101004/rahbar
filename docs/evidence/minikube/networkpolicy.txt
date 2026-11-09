@@ -1,0 +1,26 @@
+# NetworkPolicy: deny by default; the ui pod must not reach chroma, the api pod must
+# captured 2026-11-09T10:21:41Z on minikube v1.35.0 (docker driver on Docker Desktop, Calico CNI, metrics-server, ingress addon), commit 6cf6784
+
+$ kubectl get networkpolicy -n rahbar
+NAME                          POD-SELECTOR   AGE
+allow-dns                     <none>         8m1s
+api-ingress-and-egress        app=api        8m1s
+chroma-from-api-and-indexer   app=chroma     8m1s
+default-deny-all              <none>         8m1s
+indexer-egress                app=indexer    8m1s
+redis-from-api                app=redis      8m1s
+ui-from-ingress               app=ui         8m1s
+
+$ kubectl exec -n rahbar ui-7b746d48b9-jlgtg -- wget -q -O- -T 5 http://chroma:8000/api/v2/heartbeat || echo BLOCKED: ui cannot reach chroma
+wget: download timed out
+command terminated with exit code 1
+BLOCKED: ui cannot reach chroma
+
+$ kubectl exec -n rahbar api-67dd674488-vc8v2 -- python -c "import urllib.request;print(urllib.request.urlopen('http://chroma:8000/api/v2/heartbeat',timeout=5).read().decode())"
+{"nanosecond heartbeat":1794219710239167523}
+
+$ kubectl exec -n rahbar ui-7b746d48b9-jlgtg -- wget -q -O- -T 5 http://redis:6379 || echo BLOCKED: ui cannot reach redis
+wget: download timed out
+command terminated with exit code 1
+BLOCKED: ui cannot reach redis
+

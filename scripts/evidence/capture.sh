@@ -7,10 +7,11 @@ NS=rahbar
 OUT=${OUT:-evidence-out}
 mkdir -p "$OUT"
 H="Host: rahbar.local"
+BASE=${BASE:-http://localhost}
 run() { echo "\$ $*"; eval "$@" 2>&1; echo; }
 ask() { curl -s -o /dev/null -w '%{http_code}' -m 60 -H "$H" -H 'Content-Type: application/json' \
-          -X POST http://localhost/api/ask -d "{\"question\": \"$1\"}"; }
-stamp() { echo "# $1"; echo "# captured $(date -u +%Y-%m-%dT%H:%M:%SZ) on an ephemeral kind cluster (Calico CNI, metrics-server) in GitHub Actions, commit ${GITHUB_SHA:-local}"; echo; }
+          -X POST "$BASE/api/ask" -d "{\"question\": \"$1\"}"; }
+stamp() { echo "# $1"; echo "# captured $(date -u +%Y-%m-%dT%H:%M:%SZ) on ${CLUSTER_DESC:-an ephemeral kind cluster (Calico CNI, metrics-server) in GitHub Actions}, commit ${GITHUB_SHA:-$(git rev-parse --short HEAD 2>/dev/null)}"; echo; }
 
 # ------------------------------------------------------------- NetworkPolicy (Calico)
 {
@@ -60,8 +61,8 @@ stamp() { echo "# $1"; echo "# captured $(date -u +%Y-%m-%dT%H:%M:%SZ) on an eph
 {
   stamp "Rollout with maxSurge 1 / maxUnavailable 0, then rollout undo"
   run kubectl rollout history deployment/api -n $NS
-  run kubectl set image deployment/api -n $NS api=rahbar-api:ci-v2
-  run kubectl annotate deployment/api -n $NS kubernetes.io/change-cause="ship rahbar-api:ci-v2" --overwrite
+  run kubectl set image deployment/api -n $NS api=${ROLLOUT_IMAGE:-rahbar-api:ci-v2}
+  run kubectl annotate deployment/api -n $NS kubernetes.io/change-cause="ship ${ROLLOUT_IMAGE:-rahbar-api:ci-v2}" --overwrite
   run kubectl rollout status deployment/api -n $NS --timeout=300s
   run kubectl get deployment api -n $NS -o wide
   run kubectl rollout undo deployment/api -n $NS

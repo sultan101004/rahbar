@@ -1,0 +1,75 @@
+# Questions through the minikube Ingress (ingress-nginx addon, Host: rahbar.local, port-forwarded to localhost:8080)
+# captured 2026-11-09T10:21:21Z on minikube v1.35.0 (Calico), LLM_PROVIDER=hosted (Groq openai/gpt-oss-120b), embeddings nomic-embed-text on the laptop's Ollama, commit 6cf6784
+
+NAME                     READY   STATUS      RESTARTS        AGE
+api-67dd674488-vc8v2     1/1     Running     0               75s
+api-67dd674488-xhlsg     1/1     Running     1 (5m36s ago)   7m16s
+api-67dd674488-zk8mm     1/1     Running     0               69s
+chroma-0                 1/1     Running     0               7m40s
+indexer-rrzhx            0/1     Completed   0               7m40s
+redis-68c64ccbbb-fsx5t   1/1     Running     0               7m40s
+ui-7b746d48b9-jlgtg      1/1     Running     0               7m40s
+
+$ curl -s -H 'Host: rahbar.local' -X POST localhost:8080/api/ask -d '{"question": "What minimum CGPA keeps me off academic warning?"}'
+{
+ "answer": "A CGPA of 2.00 is the minimum required to stay off academic warning for undergraduate programs.",
+ "citations": [
+  {
+   "source": "academic-rules-handbook-jun-2026.pdf",
+   "section": "Academic Warning/Probation",
+   "page": 24
+  },
+  {
+   "source": "prospectus-2026-academic-rules-and-regulations.pdf",
+   "section": "10. Bachelor Degree with Honours",
+   "page": 2
+  }
+ ],
+ "answered_from_context": true,
+ "confidence": "high",
+ "provider": "hosted"
+}
+retrieved scores: [0.8782, 0.8293, 0.7874, 0.701, 0.6951]
+
+$ curl -s -H 'Host: rahbar.local' -X POST localhost:8080/api/ask -d '{"question": "What is the deadline to withdraw from a course?"}'
+{
+ "answer": "The deadline to withdraw from a course is the last day of the makeup week of every semester.",
+ "citations": [
+  {
+   "source": "academic-rules-handbook-jun-2026.pdf",
+   "section": "Withdrawal from a Course",
+   "page": 22
+  }
+ ],
+ "answered_from_context": true,
+ "confidence": "high",
+ "provider": "hosted"
+}
+retrieved scores: [0.8534, 0.8198, 0.6999, 0.6998, 0.697]
+
+$ curl -s -H 'Host: rahbar.local' -X POST localhost:8080/api/ask -d '{"question": "How do I apply for a hostel room?"}'
+{
+ "answer": "I could not find this in the FAST-NUCES documents I have indexed, so I cannot answer it reliably. Please check with the Academic Office.",
+ "citations": [],
+ "answered_from_context": false,
+ "confidence": "low",
+ "provider": "hosted"
+}
+retrieved scores: [0.6238, 0.62, 0.617, 0.616, 0.6142]
+
+$ curl -s -H 'Host: rahbar.local' -X POST localhost:8080/api/ask -d '{"question": "What does clause 1.21 say?"}'
+{
+ "answer": "Clause 1.21 states that students are required to maintain 100% attendance in lectures, labs, tutorials, seminars and discussions as prescribed by the course instructor, and that an absence of up to 20% of the total attendance may be condoned by the HoD for genuine reasons such as illness.",
+ "citations": [
+  {
+   "source": "academic-rules-handbook-jun-2026.pdf",
+   "section": "Attendance Requirements",
+   "page": 10
+  }
+ ],
+ "answered_from_context": true,
+ "confidence": "high",
+ "provider": "hosted"
+}
+retrieved scores: [0.4741, 0.5486, 0.529, 0.5282, 0.5271]
+

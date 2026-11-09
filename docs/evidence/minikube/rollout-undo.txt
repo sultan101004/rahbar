@@ -1,0 +1,57 @@
+# Rollout with maxSurge 1 / maxUnavailable 0, then rollout undo
+# captured 2026-11-09T10:26:14Z on minikube v1.35.0 (docker driver on Docker Desktop, Calico CNI, metrics-server, ingress addon), commit 6cf6784
+
+$ kubectl rollout history deployment/api -n rahbar
+deployment.apps/api 
+REVISION  CHANGE-CAUSE
+1         <none>
+2         <none>
+
+
+$ kubectl set image deployment/api -n rahbar api=rahbar-api:v2
+deployment.apps/api image updated
+
+$ kubectl annotate deployment/api -n rahbar kubernetes.io/change-cause=ship rahbar-api:v2 --overwrite
+error: all resources must be specified before annotation changes: rahbar-api:v2
+
+$ kubectl rollout status deployment/api -n rahbar --timeout=300s
+Waiting for deployment "api" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+deployment "api" successfully rolled out
+
+$ kubectl get deployment api -n rahbar -o wide
+NAME   READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS   IMAGES          SELECTOR
+api    3/3     3            3           12m   api          rahbar-api:v2   app=api
+
+$ kubectl rollout undo deployment/api -n rahbar
+deployment.apps/api rolled back
+
+$ kubectl rollout status deployment/api -n rahbar --timeout=300s
+Waiting for deployment "api" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+deployment "api" successfully rolled out
+
+$ kubectl get deployment api -n rahbar -o wide
+NAME   READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS   IMAGES           SELECTOR
+api    3/3     3            3           13m   api          rahbar-api:dev   app=api
+
+$ kubectl rollout history deployment/api -n rahbar
+deployment.apps/api 
+REVISION  CHANGE-CAUSE
+1         <none>
+3         <none>
+4         <none>
+
+

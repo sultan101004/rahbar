@@ -1,0 +1,15 @@
+# Delete an api pod while questions keep arriving through the Ingress
+# captured 2026-11-09T10:26:46Z on minikube v1.35.0 (docker driver on Docker Desktop, Calico CNI, metrics-server, ingress addon), commit 6cf6784
+
+$ kubectl delete pod api-665d6dfcf-s2kwz -n rahbar --wait=false
+pod "api-665d6dfcf-s2kwz" deleted from rahbar namespace
+
+HTTP status of 30 questions asked during the deletion: 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200
+non-200 responses: 0
+
+$ kubectl get pods -n rahbar -l app=api
+NAME                   READY   STATUS    RESTARTS   AGE
+api-67dd674488-b99p4   1/1     Running   0          39s
+api-67dd674488-lp6wt   1/1     Running   0          49s
+api-67dd674488-rgnn4   1/1     Running   0          44s
+

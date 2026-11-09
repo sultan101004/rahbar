@@ -1,0 +1,223 @@
+# kubectl top pods --containers, sampled every 5 s during a re-index (kubectl create job --from=cronjob/reindex)
+# captured 2026-11-09T10:21:55Z on minikube v1.35.0 (docker driver on Docker Desktop, Calico CNI, metrics-server, ingress addon), commit 6cf6784
+
+$ kubectl create job --from=cronjob/reindex manual-reindex-1 -n rahbar
+job.batch/manual-reindex-1 created
+
+--- sample 1
+POD                      NAME     CPU(cores)   MEMORY(bytes)   
+api-67dd674488-vc8v2     api      15m          91Mi            
+api-67dd674488-xhlsg     api      6m           69Mi            
+api-67dd674488-zk8mm     api      7m           69Mi            
+chroma-0                 chroma   3m           107Mi           
+redis-68c64ccbbb-fsx5t   redis    13m          18Mi            
+ui-7b746d48b9-jlgtg      ui       2m           4Mi             
+--- sample 2
+POD                      NAME     CPU(cores)   MEMORY(bytes)   
+api-67dd674488-vc8v2     api      15m          91Mi            
+api-67dd674488-xhlsg     api      6m           69Mi            
+api-67dd674488-zk8mm     api      7m           69Mi            
+chroma-0                 chroma   3m           107Mi           
+redis-68c64ccbbb-fsx5t   redis    13m          18Mi            
+ui-7b746d48b9-jlgtg      ui       2m           4Mi             
+--- sample 3
+POD                      NAME     CPU(cores)   MEMORY(bytes)   
+api-67dd674488-vc8v2     api      15m          91Mi            
+api-67dd674488-xhlsg     api      6m           69Mi            
+api-67dd674488-zk8mm     api      7m           69Mi            
+chroma-0                 chroma   3m           107Mi           
+redis-68c64ccbbb-fsx5t   redis    13m          18Mi            
+ui-7b746d48b9-jlgtg      ui       2m           4Mi             
+--- sample 4
+POD                      NAME     CPU(cores)   MEMORY(bytes)   
+api-67dd674488-vc8v2     api      15m          91Mi            
+api-67dd674488-xhlsg     api      6m           69Mi            
+api-67dd674488-zk8mm     api      7m           69Mi            
+chroma-0                 chroma   3m           107Mi           
+redis-68c64ccbbb-fsx5t   redis    13m          18Mi            
+ui-7b746d48b9-jlgtg      ui       2m           4Mi             
+--- sample 5
+POD                      NAME     CPU(cores)   MEMORY(bytes)   
+api-67dd674488-vc8v2     api      15m          91Mi            
+api-67dd674488-xhlsg     api      6m           69Mi            
+api-67dd674488-zk8mm     api      7m           69Mi            
+chroma-0                 chroma   3m           107Mi           
+redis-68c64ccbbb-fsx5t   redis    13m          18Mi            
+ui-7b746d48b9-jlgtg      ui       2m           4Mi             
+--- sample 6
+POD                      NAME     CPU(cores)   MEMORY(bytes)   
+api-67dd674488-vc8v2     api      15m          91Mi            
+api-67dd674488-xhlsg     api      6m           69Mi            
+api-67dd674488-zk8mm     api      7m           69Mi            
+chroma-0                 chroma   3m           107Mi           
+redis-68c64ccbbb-fsx5t   redis    13m          18Mi            
+ui-7b746d48b9-jlgtg      ui       2m           4Mi             
+--- sample 7
+POD                      NAME     CPU(cores)   MEMORY(bytes)   
+api-67dd674488-vc8v2     api      15m          91Mi            
+api-67dd674488-xhlsg     api      6m           69Mi            
+api-67dd674488-zk8mm     api      7m           69Mi            
+chroma-0                 chroma   3m           107Mi           
+redis-68c64ccbbb-fsx5t   redis    13m          18Mi            
+ui-7b746d48b9-jlgtg      ui       2m           4Mi             
+--- sample 8
+POD                      NAME     CPU(cores)   MEMORY(bytes)   
+api-67dd674488-vc8v2     api      15m          91Mi            
+api-67dd674488-xhlsg     api      6m           69Mi            
+api-67dd674488-zk8mm     api      7m           69Mi            
+chroma-0                 chroma   3m           107Mi           
+redis-68c64ccbbb-fsx5t   redis    13m          18Mi            
+ui-7b746d48b9-jlgtg      ui       2m           4Mi             
+--- sample 9
+POD                      NAME     CPU(cores)   MEMORY(bytes)   
+api-67dd674488-vc8v2     api      15m          91Mi            
+api-67dd674488-xhlsg     api      6m           69Mi            
+api-67dd674488-zk8mm     api      7m           69Mi            
+chroma-0                 chroma   3m           107Mi           
+redis-68c64ccbbb-fsx5t   redis    13m          18Mi            
+ui-7b746d48b9-jlgtg      ui       2m           4Mi             
+--- sample 10
+POD                      NAME     CPU(cores)   MEMORY(bytes)   
+api-67dd674488-vc8v2     api      15m          91Mi            
+api-67dd674488-xhlsg     api      6m           69Mi            
+api-67dd674488-zk8mm     api      7m           69Mi            
+chroma-0                 chroma   3m           107Mi           
+redis-68c64ccbbb-fsx5t   redis    13m          18Mi            
+ui-7b746d48b9-jlgtg      ui       2m           4Mi             
+--- sample 11
+POD                      NAME     CPU(cores)   MEMORY(bytes)   
+api-67dd674488-vc8v2     api      15m          91Mi            
+api-67dd674488-xhlsg     api      6m           69Mi            
+api-67dd674488-zk8mm     api      7m           69Mi            
+chroma-0                 chroma   3m           107Mi           
+redis-68c64ccbbb-fsx5t   redis    13m          18Mi            
+ui-7b746d48b9-jlgtg      ui       2m           4Mi             
+--- sample 12
+POD                      NAME      CPU(cores)   MEMORY(bytes)   
+api-67dd674488-vc8v2     api       4m           89Mi            
+api-67dd674488-xhlsg     api       4m           69Mi            
+api-67dd674488-zk8mm     api       4m           68Mi            
+chroma-0                 chroma    2m           110Mi           
+manual-reindex-1-qsbht   indexer   997m         624Mi           
+redis-68c64ccbbb-fsx5t   redis     10m          18Mi            
+ui-7b746d48b9-jlgtg      ui        1m           4Mi             
+--- sample 13
+POD                      NAME      CPU(cores)   MEMORY(bytes)   
+api-67dd674488-vc8v2     api       4m           89Mi            
+api-67dd674488-xhlsg     api       4m           69Mi            
+api-67dd674488-zk8mm     api       4m           68Mi            
+chroma-0                 chroma    2m           110Mi           
+manual-reindex-1-qsbht   indexer   997m         624Mi           
+redis-68c64ccbbb-fsx5t   redis     10m          18Mi            
+ui-7b746d48b9-jlgtg      ui        1m           4Mi             
+--- sample 14
+POD                      NAME      CPU(cores)   MEMORY(bytes)   
+api-67dd674488-vc8v2     api       4m           89Mi            
+api-67dd674488-xhlsg     api       4m           69Mi            
+api-67dd674488-zk8mm     api       4m           68Mi            
+chroma-0                 chroma    2m           110Mi           
+manual-reindex-1-qsbht   indexer   997m         624Mi           
+redis-68c64ccbbb-fsx5t   redis     10m          18Mi            
+ui-7b746d48b9-jlgtg      ui        1m           4Mi             
+--- sample 15
+POD                      NAME      CPU(cores)   MEMORY(bytes)   
+api-67dd674488-vc8v2     api       4m           89Mi            
+api-67dd674488-xhlsg     api       4m           69Mi            
+api-67dd674488-zk8mm     api       4m           68Mi            
+chroma-0                 chroma    2m           110Mi           
+manual-reindex-1-qsbht   indexer   997m         624Mi           
+redis-68c64ccbbb-fsx5t   redis     10m          18Mi            
+ui-7b746d48b9-jlgtg      ui        1m           4Mi             
+--- sample 16
+POD                      NAME      CPU(cores)   MEMORY(bytes)   
+api-67dd674488-vc8v2     api       4m           89Mi            
+api-67dd674488-xhlsg     api       4m           69Mi            
+api-67dd674488-zk8mm     api       4m           68Mi            
+chroma-0                 chroma    2m           110Mi           
+manual-reindex-1-qsbht   indexer   997m         624Mi           
+redis-68c64ccbbb-fsx5t   redis     10m          18Mi            
+ui-7b746d48b9-jlgtg      ui        1m           4Mi             
+--- sample 17
+POD                      NAME      CPU(cores)   MEMORY(bytes)   
+api-67dd674488-vc8v2     api       4m           89Mi            
+api-67dd674488-xhlsg     api       4m           69Mi            
+api-67dd674488-zk8mm     api       4m           68Mi            
+chroma-0                 chroma    2m           110Mi           
+manual-reindex-1-qsbht   indexer   997m         624Mi           
+redis-68c64ccbbb-fsx5t   redis     10m          18Mi            
+ui-7b746d48b9-jlgtg      ui        1m           4Mi             
+--- sample 18
+POD                      NAME      CPU(cores)   MEMORY(bytes)   
+api-67dd674488-vc8v2     api       4m           89Mi            
+api-67dd674488-xhlsg     api       4m           69Mi            
+api-67dd674488-zk8mm     api       4m           68Mi            
+chroma-0                 chroma    2m           110Mi           
+manual-reindex-1-qsbht   indexer   997m         624Mi           
+redis-68c64ccbbb-fsx5t   redis     10m          18Mi            
+ui-7b746d48b9-jlgtg      ui        1m           4Mi             
+--- sample 19
+POD                      NAME      CPU(cores)   MEMORY(bytes)   
+api-67dd674488-vc8v2     api       4m           89Mi            
+api-67dd674488-xhlsg     api       4m           69Mi            
+api-67dd674488-zk8mm     api       4m           68Mi            
+chroma-0                 chroma    2m           110Mi           
+manual-reindex-1-qsbht   indexer   997m         624Mi           
+redis-68c64ccbbb-fsx5t   redis     10m          18Mi            
+ui-7b746d48b9-jlgtg      ui        1m           4Mi             
+--- sample 20
+POD                      NAME      CPU(cores)   MEMORY(bytes)   
+api-67dd674488-vc8v2     api       4m           89Mi            
+api-67dd674488-xhlsg     api       4m           69Mi            
+api-67dd674488-zk8mm     api       4m           68Mi            
+chroma-0                 chroma    2m           110Mi           
+manual-reindex-1-qsbht   indexer   997m         624Mi           
+redis-68c64ccbbb-fsx5t   redis     10m          18Mi            
+ui-7b746d48b9-jlgtg      ui        1m           4Mi             
+--- sample 21
+POD                      NAME      CPU(cores)   MEMORY(bytes)   
+api-67dd674488-vc8v2     api       4m           89Mi            
+api-67dd674488-xhlsg     api       4m           69Mi            
+api-67dd674488-zk8mm     api       4m           68Mi            
+chroma-0                 chroma    2m           110Mi           
+manual-reindex-1-qsbht   indexer   997m         624Mi           
+redis-68c64ccbbb-fsx5t   redis     10m          18Mi            
+ui-7b746d48b9-jlgtg      ui        1m           4Mi             
+--- sample 22
+POD                      NAME      CPU(cores)   MEMORY(bytes)   
+api-67dd674488-vc8v2     api       4m           89Mi            
+api-67dd674488-xhlsg     api       4m           69Mi            
+api-67dd674488-zk8mm     api       4m           68Mi            
+chroma-0                 chroma    2m           110Mi           
+manual-reindex-1-qsbht   indexer   997m         624Mi           
+redis-68c64ccbbb-fsx5t   redis     10m          18Mi            
+ui-7b746d48b9-jlgtg      ui        1m           4Mi             
+--- sample 23
+POD                      NAME      CPU(cores)   MEMORY(bytes)   
+api-67dd674488-vc8v2     api       4m           77Mi            
+api-67dd674488-xhlsg     api       4m           69Mi            
+api-67dd674488-zk8mm     api       4m           69Mi            
+chroma-0                 chroma    2m           68Mi            
+manual-reindex-1-qsbht   indexer   1000m        522Mi           
+redis-68c64ccbbb-fsx5t   redis     11m          18Mi            
+ui-7b746d48b9-jlgtg      ui        1m           4Mi             
+--- sample 24
+POD                      NAME      CPU(cores)   MEMORY(bytes)   
+api-67dd674488-vc8v2     api       4m           77Mi            
+api-67dd674488-xhlsg     api       4m           69Mi            
+api-67dd674488-zk8mm     api       4m           69Mi            
+chroma-0                 chroma    2m           68Mi            
+manual-reindex-1-qsbht   indexer   1000m        522Mi           
+redis-68c64ccbbb-fsx5t   redis     11m          18Mi            
+ui-7b746d48b9-jlgtg      ui        1m           4Mi             
+
+$ kubectl get jobs -n rahbar
+NAME               STATUS     COMPLETIONS   DURATION   AGE
+indexer            Complete   1/1           6m28s      10m
+manual-reindex-1   Running    0/1           2m12s      2m13s
+
+$ kubectl logs -n rahbar job/manual-reindex-1 | tail -3
+Defaulted container "indexer" out of: indexer, wait-for-chroma (init)
+{"ts": "2026-11-09T10:24:05Z", "logger": "rahbar.indexer.extract", "msg": "extracted", "source": "grading-page.html", "pages": 1, "ocr_pages": 0, "chars": 4833}
+{"ts": "2026-11-09T10:24:05Z", "logger": "rahbar.indexer", "msg": "chunked", "source": "grading-page.html", "chunks": 6, "doc_version": "2026", "superseded": false, "ocr_pages": 0}
+{"ts": "2026-11-09T10:24:05Z", "logger": "rahbar.indexer", "msg": "chunking summary", "chunks": 240, "strategy": "structure", "chunk_size": 300, "chunk_overlap": 40, "original_words": 29681, "stored_words": 31006, "amplification": 1.045}
+

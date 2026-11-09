@@ -177,6 +177,8 @@ def main() -> int:
     parser.add_argument("--golden", type=Path, default=HERE / "golden.yaml")
     parser.add_argument("--baseline", type=Path, default=HERE / "baseline.json")
     parser.add_argument("--out", type=Path, default=HERE / "results.json")
+    parser.add_argument("--pace", type=float, default=0.0,
+                        help="seconds to wait between questions (hosted free-tier rate limits)")
     parser.add_argument("--update-baseline", action="store_true",
                         help="write these results as the new baseline")
     args = parser.parse_args()
@@ -197,6 +199,8 @@ def main() -> int:
                 "seconds": round(time.perf_counter() - started, 2),
             })
             print(f"  {q['id']:<5} {rows[-1]['seconds']:>6.2f}s  {q['question'][:60]}")
+            if args.pace:
+                time.sleep(args.pace)
 
     try:
         results = summarise(rows)

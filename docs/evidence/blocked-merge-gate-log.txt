@@ -1,0 +1,8 @@
+# PR #7 (demo: relevance floor lowered to 0.55): CI e2e-eval FAILS, so the merge into main is blocked
+# https://github.com/sultan101004/rahbar/pull/7  failing job: https://github.com/sultan101004/rahbar/actions/runs/42512130879/job/128827830488
+# The must-abstain question 'How do I apply for a hostel room?' scores 0.5592 >= 0.55, so it is
+# 'answered' from the fees table with a valid-looking citation. With the measured floor 0.70 it is declined.
+
+POST /api/ask (How do I apply for a hostel room?) -> 200
+AssertionError: {'request_id': '72eca22335d382e7f1eeb4de1c8f5fa6', 'answer': '(stub) A model would answer here from 1 passages. The first one says: 2. Other charges\n| Charge | Amount (PKR) |\n| --- | --- |\n| Late registration | 3,000 |\n| Transcript (per copy) | 1,500 |\n| Campus transfer | 5,000 |', 'citations': [{'source': '
+##[error]Process completed with exit code 1.

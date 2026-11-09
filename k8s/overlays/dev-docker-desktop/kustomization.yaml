@@ -1,0 +1,30 @@
+# minikube on Docker Desktop, on a laptop too small for a local LLM (we used 6.6 GB of RAM).
+#
+# - minikube runs inside Docker Desktop's VM, so host.minikube.internal (192.168.49.1) is the
+#   VM, not the laptop. The laptop's Ollama (embeddings: nomic-embed-text) is reached at
+#   host.docker.internal = 192.168.65.254. Check with:
+#     minikube ssh "getent hosts host.docker.internal; curl -s http://host.docker.internal:11434/api/version"
+# - Generation uses the hosted provider (Groq, OpenAI-compatible) because llama3.2:3b does not
+#   fit in RAM next to the cluster. The key comes ONLY from the Secret, created from the
+#   command line (never a committed file):
+#     kubectl create secret generic rahbar-secret -n rahbar --from-env-file ~/.config/rahbar/groq.env
+#   The api's NetworkPolicy already allows HTTPS (443) to public addresses for this mode.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../dev
+patches:
+  - target: {kind: ConfigMap, name: rahbar-config}
+    patch: |-
+      - {op: replace, path: /data/OLLAMA_URL, value: "http://192.168.65.254:11434"}
+      - {op: replace, path: /data/LLM_PROVIDER, value: "hosted"}
+      - {op: replace, path: /data/HOSTED_BASE_URL, value: "https://api.groq.com/openai/v1"}
+      - {op: replace, path: /data/LLM_MODEL, value: "openai/gpt-oss-120b"}
+      - {op: replace, path: /data/MAX_OUTPUT_TOKENS, value: "1500"}
+      - {op: add, path: /data/LLM_REASONING_EFFORT, value: "low"}
+  - target: {kind: NetworkPolicy, name: api-ingress-and-egress}
+    patch: |-
+      - {op: replace, path: /spec/egress/2/to/0/ipBlock/cidr, value: "192.168.65.254/32"}
+  - target: {kind: NetworkPolicy, name: indexer-egress}
+    patch: |-
+      - {op: replace, path: /spec/egress/1/to/0/ipBlock/cidr, value: "192.168.65.254/32"}

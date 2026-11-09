@@ -42,6 +42,7 @@ class Settings:
     llm_api_key: str = field(default="", repr=False)   # from the Secret; never log it
     llm_timeout_s: float = 90.0      # a hung model call must not hold a worker forever
     max_output_tokens: int = 700
+    reasoning_effort: str = ""       # hosted reasoning models only (low | medium | high)
 
     # Grounding (3.4): a passage below this cosine similarity is not evidence.
     relevance_floor: float = 0.70
@@ -71,6 +72,7 @@ def get_settings() -> Settings:
         llm_api_key=os.environ.get("LLM_API_KEY", ""),
         llm_timeout_s=_float("LLM_TIMEOUT_S", 90.0),
         max_output_tokens=_int("MAX_OUTPUT_TOKENS", 700),
+        reasoning_effort=os.environ.get("LLM_REASONING_EFFORT", ""),
         relevance_floor=_float("RELEVANCE_FLOOR", 0.70),
         redis_url=os.environ.get("REDIS_URL", ""),
         cache_threshold=_float("CACHE_THRESHOLD", 0.93),

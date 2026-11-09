@@ -23,7 +23,7 @@ from ..providers.llm.prompt import GenerationError
 from ..retrieval.base import Retriever
 from ..routes import metrics
 from ..schemas import AskResponse, Passage, RetrievedRef
-from . import grounding
+from . import grounding, smalltalk
 from .cache import Cache, NullCache, is_followup, should_cache
 
 log = logging.getLogger("rahbar.answer")
@@ -49,6 +49,16 @@ def run(question: str, retriever: Retriever, provider: LLMProvider, settings: Se
         cache: Cache | None = None) -> Outcome:
     cache = cache or NullCache()
     rid = request_id_var.get()
+
+    # 1b. greetings and content-free inputs: a helpful hint, no search, no model, no citation
+    kind = smalltalk.classify(question)
+    if kind:
+        metrics.ABSTENTIONS.labels(reason=kind).inc()
+        log.info("answered", extra={"smalltalk": kind, "answered_from_context": False})
+        return Outcome(AskResponse(
+            request_id=rid, answer=smalltalk.reply(kind), citations=[],
+            answered_from_context=False, confidence="low", retrieved=[],
+            provider=provider.name))
     followup = is_followup(question)
 
     # 2. cache check: needs the question vector and the live index id

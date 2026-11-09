@@ -418,3 +418,55 @@ def test_hosted_provider_uses_json_mode_and_never_leaks_the_key() -> None:
     body = json.loads(sent[0].content)
     assert body["response_format"] == {"type": "json_object"}
     assert "test-key-not-real" not in repr(p.settings)
+
+
+def test_hosted_provider_waits_on_429_then_succeeds(monkeypatch: pytest.MonkeyPatch) -> None:
+    from app.providers.llm import hosted
+
+    replies = [httpx.Response(429, headers={"retry-after": "0.01"}, text="rate limited"),
+               httpx.Response(200, json={"choices": [{"message": {
+                   "content": good_answer().model_dump_json()}}]})]
+    monkeypatch.setattr(hosted.time, "sleep", lambda s: None)
+    p = hosted.HostedProvider(Settings(llm_provider="hosted", hosted_base_url="http://llm.test/v1",
+                                       llm_api_key="test-key-not-real"))
+    p.client = httpx.Client(transport=httpx.MockTransport(lambda req: replies.pop(0)))
+    assert p.generate("q?", [passage("c1", "1. Attendance", 0.9)]).answered_from_context
+    assert replies == []
+
+
+def test_hosted_json_validate_failed_is_retried_once_then_falls_back() -> None:
+    from app.providers.llm.hosted import HostedProvider
+
+    calls: list[int] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls.append(1)
+        return httpx.Response(400, text='{"error":{"code":"json_validate_failed"}}')
+
+    p = HostedProvider(Settings(llm_provider="hosted", hosted_base_url="http://llm.test/v1",
+                                llm_api_key="test-key-not-real"))
+    p.client = httpx.Client(transport=httpx.MockTransport(handler))
+    with pytest.raises(GenerationError):
+        p.generate("q?", [passage("c1", "1. Attendance", 0.9)])
+    assert len(calls) == 2                      # first attempt + the one validation retry
+
+
+@pytest.mark.parametrize("text,kind", [
+    ("hey", "greeting"), ("Hello RAHBAR!", "greeting"), ("assalamualaikum", "greeting"),
+    ("what?", "vague"), ("help", "vague"), ("???", "vague"), ("thanks a lot", "thanks"),
+    ("What is the fee?", None), ("attendance rules", None),
+    ("hey, what CGPA avoids academic warning?", None),
+])
+def test_smalltalk_classification(text: str, kind: str | None) -> None:
+    from app.services.smalltalk import classify
+
+    assert classify(text) == kind
+
+
+def test_greeting_gets_a_hint_without_search_or_model() -> None:
+    retriever = FakeRetriever([passage("c1", "1. Attendance", 0.9)])
+    provider = ScriptedProvider(good_answer())
+    out = run("hey", retriever, provider, SETTINGS).response
+    assert "RAHBAR" in out.answer and "CGPA" in out.answer
+    assert out.answered_from_context is False and out.citations == [] and out.retrieved == []
+    assert retriever.calls == 0 and provider.calls == 0

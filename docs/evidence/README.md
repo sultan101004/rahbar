@@ -1,6 +1,8 @@
 # Evidence
 
-Cluster transcripts were captured by `.github/workflows/evidence.yml` (run
+**minikube:** the same demos on minikube v1.35.0 with Calico, including `kubectl top` during the real-corpus indexer Job, are in [`minikube/`](minikube/README.md).
+
+Cluster transcripts were also captured by `.github/workflows/evidence.yml` (run
 https://github.com/sultan101004/rahbar/actions/runs/42511526605) on an ephemeral **kind**
 cluster with **Calico** (NetworkPolicy enforced) and metrics-server, deploying the same
 manifests on the fixture corpus. Our laptop's Docker VM has 1.6 GB, too little for minikube,

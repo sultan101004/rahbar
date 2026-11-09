@@ -64,7 +64,10 @@ rate limit, not pods.
   58- and 64-page PDFs + 239 vectors in memory). We sampled `docker stats` every 2 s while the
   indexer image ran the same command the Job runs (`corpus/raw` mounted at `/corpus`). The api
   peaked at 173 MB (`memory.peak` in its cgroup), Chroma at 106 MB with 239 chunks, Redis at 13 MB.
-- **`kubectl top pods`** on a cluster (`docs/evidence/kubectl-top.txt`, kind + metrics-server):
+- **`kubectl top pods` on minikube, real corpus** (`docs/evidence/minikube/kubectl-top-first-index.txt`,
+  35 samples at 5 s): the indexer peaked at **1025Mi and 1002m CPU** (one full core during OCR).
+  Against the 1536Mi limit that is **50% headroom**; a re-index of the same corpus peaked at
+  624Mi. On kind (`docs/evidence/kubectl-top.txt`):
   api 69-70Mi per replica, chroma 18Mi, redis 3Mi, ui 2Mi on the fixture corpus. That is far
   under the api's 192Mi request, so the request could be lowered. The fixture re-index ran in
   24 s, faster than metrics-server's sampling window, so the indexer's figure is the Docker peak

@@ -1,0 +1,58 @@
+# Scale to 4: the Service's selector finds the new pod by label; the Service is not touched
+# captured 2026-11-09T10:24:09Z on minikube v1.35.0 (docker driver on Docker Desktop, Calico CNI, metrics-server, ingress addon), commit 6cf6784
+
+$ kubectl get endpoints api -n rahbar
+NAME   ENDPOINTS                                                  AGE
+api    10.244.120.83:8000,10.244.120.84:8000,10.244.120.85:8000   10m
+
+$ kubectl scale deployment/api -n rahbar --replicas=4
+deployment.apps/api scaled
+
+$ kubectl rollout status deployment/api -n rahbar --timeout=180s
+Waiting for deployment "api" rollout to finish: 3 of 4 updated replicas are available...
+Waiting for deployment spec update to be observed...
+Waiting for deployment "api" rollout to finish: 3 of 4 updated replicas are available...
+Waiting for deployment "api" rollout to finish: 3 of 4 updated replicas are available...
+deployment "api" successfully rolled out
+
+$ kubectl wait --for=condition=Ready pod -l app=api -n rahbar --timeout=120s
+timed out waiting for the condition on pods/api-67dd674488-t8vnj
+timed out waiting for the condition on pods/api-67dd674488-vc8v2
+timed out waiting for the condition on pods/api-67dd674488-xhlsg
+timed out waiting for the condition on pods/api-67dd674488-zk8mm
+
+$ kubectl get endpoints api -n rahbar
+NAME   ENDPOINTS                                                  AGE
+api    10.244.120.83:8000,10.244.120.84:8000,10.244.120.85:8000   12m
+
+$ kubectl get pods -n rahbar -l app=api -o wide
+NAME                   READY   STATUS    RESTARTS      AGE    IP              NODE       NOMINATED NODE   READINESS GATES
+api-67dd674488-vc8v2   1/1     Running   0             6m7s   10.244.120.84   minikube   <none>           <none>
+api-67dd674488-xhlsg   1/1     Running   1 (10m ago)   12m    10.244.120.83   minikube   <none>           <none>
+api-67dd674488-zk8mm   1/1     Running   0             6m1s   10.244.120.85   minikube   <none>           <none>
+
+
+# FINDING: the HPA owns spec.replicas. 'kubectl scale --replicas=4' above was undone by the HPA
+# (event: 'New size: 3; reason: All metrics below target'). Scale through the HPA instead:
+
+$ kubectl patch hpa api -n rahbar -p '{"spec":{"minReplicas":4}}'
+horizontalpodautoscaler.autoscaling/api patched
+
+$ kubectl get hpa api -n rahbar
+NAME   REFERENCE        TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
+api    Deployment/api   cpu: 5%/70%   4         8         4          17m
+
+$ kubectl get endpoints api -n rahbar -o wide
+NAME   ENDPOINTS                                                              AGE
+api    10.244.120.95:8000,10.244.120.96:8000,10.244.120.97:8000 + 1 more...   17m
+
+$ kubectl get pods -n rahbar -l app=api
+NAME                   READY   STATUS    RESTARTS   AGE
+api-5d479f97d6-8t785   1/1     Running   0          2m39s
+api-5d479f97d6-sfqdt   1/1     Running   0          2m6s
+api-5d479f97d6-t5nh9   1/1     Running   0          2m44s
+api-5d479f97d6-xrmcr   1/1     Running   0          2m34s
+
+$ kubectl patch hpa api -n rahbar -p '{"spec":{"minReplicas":3}}'
+horizontalpodautoscaler.autoscaling/api patched
+

@@ -1,0 +1,68 @@
+# Final state
+# captured 2026-11-09T10:28:36Z on minikube v1.35.0 (docker driver on Docker Desktop, Calico CNI, metrics-server, ingress addon), commit 6cf6784
+
+$ kubectl get all,pvc,ingress,networkpolicy -n rahbar
+NAME                         READY   STATUS        RESTARTS   AGE
+pod/api-5d479f97d6-8t785     1/1     Running       0          10s
+pod/api-5d479f97d6-t5nh9     1/1     Running       0          15s
+pod/api-5d479f97d6-xrmcr     1/1     Running       0          5s
+pod/api-67dd674488-b99p4     1/1     Terminating   0          116s
+pod/api-67dd674488-lp6wt     1/1     Terminating   0          2m6s
+pod/api-67dd674488-rgnn4     1/1     Terminating   0          2m1s
+pod/chroma-0                 1/1     Running       0          14m
+pod/indexer-rrzhx            0/1     Completed     0          14m
+pod/manual-reindex-1-qsbht   0/1     Completed     0          6m40s
+pod/redis-68c64ccbbb-fsx5t   1/1     Running       0          14m
+pod/ui-7b746d48b9-jlgtg      1/1     Running       0          14m
+
+NAME                      TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+service/api               ClusterIP   10.107.239.79    <none>        8000/TCP   14m
+service/chroma            ClusterIP   10.109.69.202    <none>        8000/TCP   14m
+service/chroma-headless   ClusterIP   None             <none>        8000/TCP   14m
+service/redis             ClusterIP   10.98.67.194     <none>        6379/TCP   14m
+service/ui                ClusterIP   10.104.122.101   <none>        80/TCP     14m
+
+NAME                    READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/api     3/3     3            3           14m
+deployment.apps/redis   1/1     1            1           14m
+deployment.apps/ui      1/1     1            1           14m
+
+NAME                               DESIRED   CURRENT   READY   AGE
+replicaset.apps/api-5b97d64989     0         0         0       14m
+replicaset.apps/api-5d479f97d6     3         3         3       15s
+replicaset.apps/api-665d6dfcf      0         0         0       2m22s
+replicaset.apps/api-67dd674488     0         0         0       14m
+replicaset.apps/api-6c7dbc4778     0         0         0       77s
+replicaset.apps/redis-68c64ccbbb   1         1         1       14m
+replicaset.apps/ui-7b746d48b9      1         1         1       14m
+
+NAME                      READY   AGE
+statefulset.apps/chroma   1/1     14m
+
+NAME                                      REFERENCE        TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/api   Deployment/api   cpu: 6%/70%   3         8         3          14m
+
+NAME                    SCHEDULE    TIMEZONE       SUSPEND   ACTIVE   LAST SCHEDULE   AGE
+cronjob.batch/reindex   0 3 * * 1   Asia/Karachi   False     0        <none>          14m
+
+NAME                         STATUS     COMPLETIONS   DURATION   AGE
+job.batch/indexer            Complete   1/1           6m28s      14m
+job.batch/manual-reindex-1   Complete   1/1           3m39s      6m41s
+
+NAME                                         STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+persistentvolumeclaim/cache-data             Bound    pvc-ba66d506-c203-4e3b-833f-4777a657e008   1Gi        RWO            standard       <unset>                 14m
+persistentvolumeclaim/chroma-data-chroma-0   Bound    pvc-8dec4998-b1e0-4fdf-9f84-58ad08cea610   2Gi        RWO            standard       <unset>                 14m
+persistentvolumeclaim/rahbar-corpus          Bound    pvc-67b42ca2-4763-4277-a388-291663d30166   1Gi        RWO            standard       <unset>                 14m
+
+NAME                               CLASS   HOSTS          ADDRESS        PORTS   AGE
+ingress.networking.k8s.io/rahbar   nginx   rahbar.local   192.168.49.2   80      14m
+
+NAME                                                          POD-SELECTOR   AGE
+networkpolicy.networking.k8s.io/allow-dns                     <none>         14m
+networkpolicy.networking.k8s.io/api-ingress-and-egress        app=api        14m
+networkpolicy.networking.k8s.io/chroma-from-api-and-indexer   app=chroma     14m
+networkpolicy.networking.k8s.io/default-deny-all              <none>         14m
+networkpolicy.networking.k8s.io/indexer-egress                app=indexer    14m
+networkpolicy.networking.k8s.io/redis-from-api                app=redis      14m
+networkpolicy.networking.k8s.io/ui-from-ingress               app=ui         14m
+

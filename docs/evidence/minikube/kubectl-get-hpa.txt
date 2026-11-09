@@ -1,0 +1,35 @@
+# HPA reads a real CPU percentage (requests.cpu set, metrics-server on), not <unknown>
+# captured 2026-11-09T10:24:08Z on minikube v1.35.0 (docker driver on Docker Desktop, Calico CNI, metrics-server, ingress addon), commit 6cf6784
+
+$ kubectl get hpa -n rahbar
+NAME   REFERENCE        TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
+api    Deployment/api   cpu: 4%/70%   3         8         3          10m
+
+$ kubectl describe hpa api -n rahbar | sed -n '/Metrics/,/Events/p'
+Metrics:                                               ( current / target )
+  resource cpu on pods  (as a percentage of request):  4% (4m) / 70%
+Min replicas:                                          3
+Max replicas:                                          8
+Behavior:
+  Scale Up:
+    Stabilization Window: 0 seconds
+    Select Policy: Max
+    Policies:
+      - Type: Pods     Value: 4    Period: 15 seconds
+      - Type: Percent  Value: 100  Period: 15 seconds
+  Scale Down:
+    Stabilization Window: 120 seconds
+    Select Policy: Max
+    Policies:
+      - Type: Percent  Value: 100  Period: 15 seconds
+Deployment pods:       3 current / 3 desired
+Conditions:
+  Type            Status  Reason            Message
+  ----            ------  ------            -------
+  AbleToScale     True    ReadyForNewScale  recommended size matches current size
+  ScalingActive   True    ValidMetricFound  the HPA was able to successfully calculate a replica count from cpu resource utilization (percentage of request)
+  ScalingLimited  True    TooFewReplicas    the desired replica count is less than the minimum replica count
+Events:
+  Warning  FailedComputeMetricsReplicas  7m27s (x12 over 10m)  horizontal-pod-autoscaler  invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+  Warning  FailedGetResourceMetric       5m12s (x21 over 10m)  horizontal-pod-autoscaler  failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+

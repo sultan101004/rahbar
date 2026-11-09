@@ -1,0 +1,43 @@
+# Change EMBED_MODEL in the ConfigMap, restart only the api: the new pod stays 0/1 READY and logs the conflict; the old pods keep serving
+# captured 2026-11-09T10:27:19Z on minikube v1.35.0 (docker driver on Docker Desktop, Calico CNI, metrics-server, ingress addon), commit 6cf6784
+
+$ kubectl patch configmap rahbar-config -n rahbar --type merge -p '{"data":{"EMBED_MODEL":"mxbai-embed-large"}}'
+configmap/rahbar-config patched
+
+$ kubectl rollout restart deployment/api -n rahbar
+deployment.apps/api restarted
+
+$ kubectl get pods -n rahbar -l app=api
+NAME                   READY   STATUS    RESTARTS   AGE
+api-67dd674488-b99p4   1/1     Running   0          100s
+api-67dd674488-lp6wt   1/1     Running   0          110s
+api-67dd674488-rgnn4   1/1     Running   0          105s
+api-6c7dbc4778-bp62v   0/1     Running   0          61s
+
+$ kubectl logs -n rahbar api-6c7dbc4778-bp62v | grep 'PIN CONFLICT'
+{"ts": "2026-11-09T10:27:23Z", "level": "ERROR", "logger": "rahbar.readiness", "msg": "EMBEDDING PIN CONFLICT", "request_id": "-", "index_embed_model": "nomic-embed-text", "api_embed_model": "mxbai-embed-large", "index_dimension": 768, "detail": "embedding model mismatch: index built with 'nomic-embed-text', API pinned to EMBED_MODEL='mxbai-embed-large'. Vectors from different models are not comparable; refusing to serve. Re-index or restore the ConfigMap."}
+
+$ kubectl exec -n rahbar api-6c7dbc4778-bp62v -- python -c "import urllib.request,urllib.error
+try: urllib.request.urlopen('http://localhost:8000/readyz')
+except urllib.error.HTTPError as e: print(e.code, e.read().decode())"
+503 {"status":"not ready","checks":{"chroma":"ok (240 chunks, index 20261109T102529Z)","embed_model":"embedding model mismatch: index built with 'nomic-embed-text', API pinned to EMBED_MODEL='mxbai-embed-large'. Vectors from different models are not comparable; refusing to serve. Re-index or restore the ConfigMap.","redis":"ok"}}
+
+still serving through the Ingress: HTTP 200
+
+$ kubectl patch configmap rahbar-config -n rahbar --type merge -p '{"data":{"EMBED_MODEL":"nomic-embed-text"}}'
+configmap/rahbar-config patched
+
+$ kubectl rollout restart deployment/api -n rahbar
+deployment.apps/api restarted
+
+$ kubectl rollout status deployment/api -n rahbar --timeout=300s
+Waiting for deployment "api" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+deployment "api" successfully rolled out
+
